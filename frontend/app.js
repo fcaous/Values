@@ -800,15 +800,15 @@ function petFormHTML(pet) {
       </div>
       <div class="field-group">
         <label>Normal Value (tokens)</label>
-        <input id="pf-nval" type="number" min="0" value="${p.normal_value||0}"/>
+        <input id="pf-nval" type="text" value="${esc(p.normal_value||'')}" placeholder="e.g. 1000 or free"/>
       </div>
       <div class="field-group">
         <label>Gold Value (tokens)</label>
-        <input id="pf-gval" type="number" min="0" value="${p.gold_value||0}"/>
+        <input id="pf-gval" type="text" value="${esc(p.gold_value||'')}" placeholder="e.g. 2500 or special"/>
       </div>
       <div class="field-group">
         <label>Rainbow Value (tokens)</label>
-        <input id="pf-rval" type="number" min="0" value="${p.rainbow_value||0}"/>
+       <input id="pf-rval" type="text" value="${esc(p.rainbow_value||'')}" placeholder="e.g. 5000 or rare"/>
       </div>
       <div class="field-group" style="display:flex;gap:1.5rem;align-items:center;padding-top:.5rem;">
         <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.88rem;text-transform:none;letter-spacing:0;">
@@ -834,9 +834,9 @@ function getPetFormData() {
     category:       val('pf-cat'),
     image_url:      val('pf-img'),
     existence_rate: val('pf-rate'),
-    normal_value:   parseInt(document.getElementById('pf-nval')?.value)    || 0,
-    gold_value:     parseInt(document.getElementById('pf-gval')?.value)    || 0,
-    rainbow_value:  parseInt(document.getElementById('pf-rval')?.value)    || 0,
+    normal_value:   document.getElementById('pf-nval')?.value.trim() || '',
+    gold_value:     document.getElementById('pf-gval')?.value.trim() || '',
+    rainbow_value:  document.getElementById('pf-rval')?.value.trim() || '',
     has_gold:       document.getElementById('pf-hasgold')?.checked !== false,
     has_rainbow:    document.getElementById('pf-hasrb')?.checked   !== false,
     notes:          document.getElementById('pf-notes')?.value?.trim()     || '',
