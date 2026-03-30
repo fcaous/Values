@@ -12,16 +12,17 @@
 
 <!-- NAV -->
 <nav id="main-nav">
-  <div class="nav-logo" id="nav-logo">
+  <div class="nav-logo" onclick="showPage('home')" id="nav-logo">
     <span class="logo-csu">CSU</span>
     <span class="logo-vl">VALUE LIST</span>
     <span class="logo-version" id="nav-version">v1.0</span>
   </div>
   <div class="nav-links">
-    <a onclick="showPage('home')" class="nav-link active" id="nl-home">Home</a>
-    <a onclick="showPage('calculator')" class="nav-link" id="nl-calculator">Calculator</a>
-    <a onclick="showPage('credits')" class="nav-link" id="nl-credits">Credits</a>
-    <a onclick="showPage('admin')" class="nav-link" id="nl-admin">Admin</a>
+    <a onclick="showPage('home')"       class="nav-link active" id="nl-home">Home</a>
+    <a onclick="showPage('calculator')" class="nav-link"        id="nl-calculator">Calculator</a>
+    <a onclick="showPage('credits')"    class="nav-link"        id="nl-credits">Credits</a>
+    <a onclick="showPage('admin')"      class="nav-link"        id="nl-admin">Admin</a>
+    <a onclick="showPage('settings')"   class="nav-link"        id="nl-settings">⚙ Settings</a>
   </div>
   <div class="nav-right">
     <div class="status-pill" id="status-pill">
@@ -39,8 +40,7 @@
       <span class="ht-csu">CSU</span>
       <span class="ht-vl">VALUE LIST</span>
     </div>
-    <p class="hero-sub">The most up-to-date Secret pet values, maintained by trusted community admins.</p>
-
+    <p class="hero-sub">The most up-to-date pet values, maintained by trusted community admins.</p>
     <div class="search-bar-wrap">
       <span class="search-icon">🔍</span>
       <input id="search-input" type="text" class="search-bar" placeholder="Search for a pet..." oninput="onSearch()" autocomplete="off"/>
@@ -60,6 +60,12 @@
         <option value="exclusive">Exclusive</option>
         <option value="event">Event</option>
       </select>
+      <select id="sort-filter" class="sort-select" onchange="onSortChange()">
+        <option value="expensive">💰 Most Expensive</option>
+        <option value="cheap">🏷 Cheapest First</option>
+        <option value="az">A → Z</option>
+        <option value="za">Z → A</option>
+      </select>
       <span class="result-count" id="result-count"></span>
     </div>
   </div>
@@ -76,7 +82,6 @@
       <h1>Trade <span>Calculator</span></h1>
       <p>Add pets to each side to compare token values</p>
     </div>
-
     <div class="calc-grid">
       <!-- Your offer -->
       <div class="calc-col">
@@ -85,7 +90,7 @@
           <span class="calc-total" id="your-total">0 tokens</span>
         </div>
         <div class="calc-search-row">
-          <input id="calc-search-your" type="text" placeholder="Search pet..." oninput="calcSearch('your')" autocomplete="off"/>
+          <input id="calc-search-your" type="text" placeholder="Search pet to add..." oninput="calcSearch('your')" autocomplete="off"/>
         </div>
         <div class="calc-dropdown" id="calc-drop-your"></div>
         <div class="calc-items" id="your-items">
@@ -107,7 +112,7 @@
           <span class="calc-total" id="their-total">0 tokens</span>
         </div>
         <div class="calc-search-row">
-          <input id="calc-search-their" type="text" placeholder="Search pet..." oninput="calcSearch('their')" autocomplete="off"/>
+          <input id="calc-search-their" type="text" placeholder="Search pet to add..." oninput="calcSearch('their')" autocomplete="off"/>
         </div>
         <div class="calc-dropdown" id="calc-drop-their"></div>
         <div class="calc-items" id="their-items">
@@ -129,8 +134,135 @@
       <div class="grid-loading">Loading...</div>
     </div>
     <div class="credits-footer">
-      <p>Made by <strong>Aousisgood1</strong> • CSU Value List</p>
-      <p style="margin-top:.4rem;font-size:.82rem;opacity:.6;">Want to help? Contact Aousisgood1 on Roblox or Discord.</p>
+      <p>Made by <strong>Aousisgood1</strong> &nbsp;·&nbsp; CSU Value List</p>
+      <p>Want to help? Contact Aousisgood1 on Roblox or Discord.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SETTINGS ══ -->
+<div id="page-settings" class="page">
+  <div class="settings-wrap">
+    <div class="page-header">
+      <h1>⚙ <span>Settings</span></h1>
+      <p>Customize your experience</p>
+    </div>
+
+    <!-- Appearance -->
+    <div class="settings-group">
+      <div class="settings-group-title">Appearance</div>
+
+      <div class="settings-row">
+        <div class="settings-row-info">
+          <div class="settings-row-label">Dark Mode</div>
+          <div class="settings-row-desc">Switch to a darker color scheme easier on the eyes</div>
+        </div>
+        <div class="toggle-wrap">
+          <label class="toggle">
+            <input type="checkbox" id="set-darkmode" onchange="applyDarkMode(this.checked)"/>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-row-info">
+          <div class="settings-row-label">Accent Color</div>
+          <div class="settings-row-desc">Choose your interface highlight color</div>
+        </div>
+        <div class="accent-swatches">
+          <div class="accent-swatch sw-blue   active" data-accent="blue"   onclick="setAccent('blue')"   title="Blue"></div>
+          <div class="accent-swatch sw-teal"          data-accent="teal"   onclick="setAccent('teal')"   title="Teal"></div>
+          <div class="accent-swatch sw-purple"        data-accent="purple" onclick="setAccent('purple')" title="Purple"></div>
+          <div class="accent-swatch sw-amber"         data-accent="amber"  onclick="setAccent('amber')"  title="Amber"></div>
+          <div class="accent-swatch sw-rose"          data-accent="rose"   onclick="setAccent('rose')"   title="Rose"></div>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-row-info">
+          <div class="settings-row-label">Grid Density</div>
+          <div class="settings-row-desc">How compact or spacious the pet cards appear</div>
+        </div>
+        <select class="settings-select" id="set-density" onchange="applyDensity(this.value)">
+          <option value="compact">Compact</option>
+          <option value="normal" selected>Normal</option>
+          <option value="spacious">Spacious</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Browsing -->
+    <div class="settings-group">
+      <div class="settings-group-title">Browsing</div>
+
+      <div class="settings-row">
+        <div class="settings-row-info">
+          <div class="settings-row-label">Default Sort Order</div>
+          <div class="settings-row-desc">How pets are sorted when you first load the list</div>
+        </div>
+        <select class="settings-select" id="set-sort" onchange="saveSettings()">
+          <option value="expensive">Most Expensive First</option>
+          <option value="cheap">Cheapest First</option>
+          <option value="az">Alphabetical A → Z</option>
+          <option value="za">Alphabetical Z → A</option>
+        </select>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-row-info">
+          <div class="settings-row-label">Default Variant</div>
+          <div class="settings-row-desc">Which pet variant is shown by default when browsing</div>
+        </div>
+        <select class="settings-select" id="set-variant" onchange="saveSettings()">
+          <option value="all">All</option>
+          <option value="gold">Gold Only</option>
+          <option value="rainbow">Rainbow Only</option>
+        </select>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-row-info">
+          <div class="settings-row-label">Show Existence Rate</div>
+          <div class="settings-row-desc">Display the rarity rate tag on pet cards</div>
+        </div>
+        <div class="toggle-wrap">
+          <label class="toggle">
+            <input type="checkbox" id="set-showrate" checked onchange="saveSettings(); applyCardSettings()"/>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-row-info">
+          <div class="settings-row-label">Show Category Tag</div>
+          <div class="settings-row-desc">Display the category label on pet cards</div>
+        </div>
+        <div class="toggle-wrap">
+          <label class="toggle">
+            <input type="checkbox" id="set-showcat" checked onchange="saveSettings(); applyCardSettings()"/>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- About -->
+    <div class="settings-group">
+      <div class="settings-group-title">About</div>
+      <div class="settings-row">
+        <div class="settings-row-info">
+          <div class="settings-row-label">Reset All Settings</div>
+          <div class="settings-row-desc">Restore all options to their default values</div>
+        </div>
+        <button class="btn-outline" onclick="resetSettings()" style="color:var(--danger);border-color:var(--danger);">Reset</button>
+      </div>
+    </div>
+
+    <div class="settings-version">
+      CSU Value List &nbsp;·&nbsp; Made by Aousisgood1<br/>
+      <span id="settings-ver-display"></span>
     </div>
   </div>
 </div>
@@ -147,11 +279,11 @@
       </div>
       <div class="auth-card">
         <div class="field-group">
-          <label>USERNAME</label>
+          <label>Username</label>
           <input id="adm-user" type="text" placeholder="Your admin username" autocomplete="off"/>
         </div>
         <div class="field-group">
-          <label>PASSWORD</label>
+          <label>Password</label>
           <input id="adm-pass" type="password" placeholder="Your password"/>
         </div>
         <div id="adm-err" class="form-error" style="display:none;"></div>
@@ -169,11 +301,9 @@
         <div class="dash-actions">
           <button class="btn-primary" onclick="openAddPetModal()">+ Add Pet</button>
           <button class="btn-outline" onclick="adminLogout()">Sign Out</button>
-          <!-- Hidden owner button — only appears after triple-click on version tag -->
           <button class="btn-hidden" id="owner-secret-btn" onclick="showPage('owner')" style="display:none;">⚙</button>
         </div>
       </div>
-
       <div class="section-card">
         <div class="section-header">
           <span>ALL PETS</span>
@@ -197,7 +327,7 @@
       </div>
       <div class="auth-card">
         <div class="field-group">
-          <label>OWNER PASSWORD</label>
+          <label>Owner Password</label>
           <input id="own-pass" type="password" placeholder="Owner password"/>
         </div>
         <div id="own-err" class="form-error" style="display:none;"></div>
@@ -228,25 +358,28 @@
           </select>
           <button class="btn-primary" onclick="ownerAddAdmin()">+ Add</button>
         </div>
-        <div id="owner-admins-list" style="margin-top:.8rem;"></div>
+        <div id="owner-admins-list" style="margin-top:.2rem;"></div>
       </div>
 
       <!-- Credits -->
       <div class="section-card" style="margin-bottom:1rem;">
         <div class="section-header"><span>MANAGE CREDITS</span></div>
         <div class="owner-form-row">
-          <input id="ow-cr-name"    type="text" placeholder="Name"         class="inline-input"/>
-          <input id="ow-cr-role"    type="text" placeholder="Role"         class="inline-input"/>
-          <input id="ow-cr-discord" type="text" placeholder="Discord tag"  class="inline-input"/>
-          <input id="ow-cr-order"   type="number" placeholder="Order" class="inline-input" style="width:80px;"/>
+          <input id="ow-cr-name"    type="text"   placeholder="Name"         class="inline-input"/>
+          <input id="ow-cr-role"    type="text"   placeholder="Role"         class="inline-input"/>
+          <input id="ow-cr-discord" type="text"   placeholder="Discord tag"  class="inline-input"/>
+          <input id="ow-cr-order"   type="number" placeholder="Order"        class="inline-input" style="max-width:80px;"/>
           <button class="btn-primary" onclick="ownerAddCredit()">+ Add</button>
         </div>
-        <div id="owner-credits-list" style="margin-top:.8rem;"></div>
+        <div id="owner-credits-list" style="margin-top:.2rem;"></div>
       </div>
 
       <!-- All Pets -->
       <div class="section-card">
-        <div class="section-header"><span>ALL PETS</span><span id="owner-pet-count" class="muted-count"></span></div>
+        <div class="section-header">
+          <span>ALL PETS</span>
+          <span id="owner-pet-count" class="muted-count"></span>
+        </div>
         <div id="owner-pets-list"></div>
       </div>
     </div>
