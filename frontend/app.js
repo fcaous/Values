@@ -1,5 +1,5 @@
   /*
-    CSU VALUE LIST — app.js
+    CSU VALUE LIST — app.js xd
     Made by Aousisgood1
   */
 
