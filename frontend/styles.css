@@ -18,10 +18,9 @@
   --card:       #ffffff;
   --border:     #bae6fd;
   --border2:    #e0f2fe;
-  --bg:         #E8E8E8;
+  --bg:         #f0f9ff;
   --danger:     #ef4444;
   --success:    #22c55e;
-  --bg2:        #E8E8E8;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -173,7 +172,7 @@ body {
 /* ── FILTER ROW ── */
 .filter-row {
   display: flex; align-items: center; gap: .6rem;
-  padding: 1rem 2rem; background: var(--bg2);
+  padding: 1rem 2rem; background: var(--card);
   border-bottom: 1px solid var(--border2);
   flex-wrap: wrap;
 }
