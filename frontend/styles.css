@@ -350,6 +350,13 @@ body.density-spacious .pet-grid { grid-template-columns: repeat(auto-fill, minma
   font-size: .73rem; font-weight: 500; color: var(--text-muted);
   margin-left: 3px;
 }
+.pet-card-power {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .68rem; font-weight: 700;
+  color: var(--gold); margin-top: .3rem;
+  background: var(--gold-bg); border: 1px solid var(--gold-border);
+  border-radius: 4px; padding: 1px 6px; display: inline-block;
+}
 
 .pet-variants {
   display: flex; gap: .3rem; margin-top: .45rem;
