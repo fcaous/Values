@@ -233,6 +233,16 @@ function showModal(html) {
 function closeModal() {
   document.getElementById('modal-bg')?.classList.remove('open');
 }
+function toggleMobileNav() {
+  const overlay = document.getElementById('mobile-nav-overlay');
+  const btn     = document.getElementById('nav-hamburger');
+  overlay?.classList.toggle('open');
+  btn?.classList.toggle('open');
+}
+function closeMobileNav() {
+  document.getElementById('mobile-nav-overlay')?.classList.remove('open');
+  document.getElementById('nav-hamburger')?.classList.remove('open');
+}
 
 // ══════════════════════════════════════════
 //  PAGE ROUTER
@@ -260,12 +270,16 @@ async function checkStatus() {
     const data = await apiFetch('GET', '/api/status');
     const pill = document.getElementById('status-pill');
     if (pill) pill.className = 'status-pill online';
+    const mobPill = document.getElementById('status-pill-mobile');
+    if (mobPill) mobPill.className = 'status-pill online';
     setEl('status-text', 'ONLINE');
+    setEl('mob-status-text', 'ONLINE');
     if (data.version) {
       setEl('nav-version', 'v' + data.version);
     }
   } catch {
     setEl('status-text', 'OFFLINE');
+    setEl('mob-status-text', 'OFFLINE');
   }
 }
 
@@ -281,6 +295,7 @@ async function loadPets() {
     if (category) q += `category=${encodeURIComponent(category)}&`;
     allPets = await apiFetch('GET', q);
     setEl('pet-counter', allPets.length + ' pets');
+    setEl('pet-counter-mobile', allPets.length + ' pets');
     applyVariantFilter();
   } catch (e) {
     document.getElementById('pet-grid').innerHTML =
@@ -419,6 +434,12 @@ function openPetModal(pet) {
         <span class="rate-value">${esc(pet.existence_rate || 'Unknown')}</span>
       </div>
 
+      ${pet.pet_power ? `
+      <div class="pet-modal-rate" style="margin-bottom:.9rem;">
+        <span class="rate-label">⚡ PET POWER</span>
+        <span class="rate-value" style="color:var(--gold);">${fmtNum(pet.pet_power)}</span>
+      </div>` : ''}
+
       <div class="pet-stats-section">
         <div class="pet-stats-label">Variant Values</div>
         <div class="stats-grid">
@@ -488,9 +509,21 @@ function calcSearch(side) {
 function addCalcItem(side, petId) {
   const pet = allPets.find(p => p.id === petId);
   if (!pet) return;
-  calcItems[side].push({ pet, variant: 'normal', qty: 1 });
+  calcItems[side].push({ pet, variant: 'normal', qty: 1, isManual: false });
   document.getElementById(`calc-search-${side}`).value = '';
   document.getElementById(`calc-drop-${side}`).style.display = 'none';
+  renderCalc();
+}
+
+function addManualTokens(side) {
+  const labelEl  = document.getElementById(`calc-manual-label-${side}`);
+  const tokensEl = document.getElementById(`calc-manual-tokens-${side}`);
+  const tokens   = parseInt(tokensEl?.value) || 0;
+  if (!tokens) { toast('⚠ Enter a token amount'); return; }
+  const label = labelEl?.value?.trim() || 'Manual tokens';
+  calcItems[side].push({ isManual: true, label, tokens, qty: 1 });
+  if (labelEl)  labelEl.value  = '';
+  if (tokensEl) tokensEl.value = '';
   renderCalc();
 }
 
@@ -522,6 +555,7 @@ function clearCalc() {
 }
 
 function getItemValue(item) {
+  if (item.isManual) return (parseInt(item.tokens) || 0) * (item.qty || 1);
   const v = item.variant === 'gold'    ? item.pet.gold_value
           : item.variant === 'rainbow' ? item.pet.rainbow_value
           : item.pet.normal_value;
@@ -541,26 +575,38 @@ function renderCalc() {
       calcItems[side].forEach((item, i) => {
         const itemVal = getItemValue(item);
         total += itemVal;
-        const varOpts = ['normal'];
-        if (item.pet.has_gold)    varOpts.push('gold');
-        if (item.pet.has_rainbow) varOpts.push('rainbow');
-        const varSelects = varOpts.map(v => `
-          <span class="ci-variant ${v}"
-            style="cursor:pointer; opacity:${item.variant===v ? 1 : 0.4}; font-weight:${item.variant===v ? '800' : '500'};"
-            onclick="changeVariant('${side}',${i},'${v}')">
-            ${v.toUpperCase()}
-          </span>
-        `).join('');
         const row = document.createElement('div');
-        row.className = 'calc-item';
-        row.innerHTML = `
-          <div class="ci-name">${esc(item.pet.name)}</div>
-          <div style="display:flex;gap:.25rem;align-items:center;">${varSelects}</div>
-          <input class="ci-qty" type="number" min="1" value="${item.qty}"
-            onchange="changeQty('${side}',${i},this.value)"/>
-          <div class="ci-val">${fmtNum(itemVal)}</div>
-          <button class="ci-rm" onclick="removeCalcItem('${side}',${i})">✕</button>
-        `;
+
+        if (item.isManual) {
+          row.className = 'calc-item is-token';
+          row.innerHTML = `
+            <div class="ci-name">🪙 ${esc(item.label)}</div>
+            <input class="ci-qty" type="number" min="1" value="${item.qty || 1}"
+              title="Quantity" onchange="changeQty('${side}',${i},this.value)"/>
+            <div class="ci-val">${fmtNum(itemVal)}</div>
+            <button class="ci-rm" onclick="removeCalcItem('${side}',${i})">✕</button>
+          `;
+        } else {
+          const varOpts = ['normal'];
+          if (item.pet.has_gold)    varOpts.push('gold');
+          if (item.pet.has_rainbow) varOpts.push('rainbow');
+          const varSelects = varOpts.map(v => `
+            <span class="ci-variant ${v}"
+              style="cursor:pointer; opacity:${item.variant===v ? 1 : 0.4}; font-weight:${item.variant===v ? '800' : '500'};"
+              onclick="changeVariant('${side}',${i},'${v}')">
+              ${v.toUpperCase()}
+            </span>
+          `).join('');
+          row.className = 'calc-item';
+          row.innerHTML = `
+            <div class="ci-name">${esc(item.pet.name)}</div>
+            <div style="display:flex;gap:.25rem;align-items:center;">${varSelects}</div>
+            <input class="ci-qty" type="number" min="1" value="${item.qty}"
+              onchange="changeQty('${side}',${i},this.value)"/>
+            <div class="ci-val">${fmtNum(itemVal)}</div>
+            <button class="ci-rm" onclick="removeCalcItem('${side}',${i})">✕</button>
+          `;
+        }
         container.appendChild(row);
       });
     }
@@ -800,15 +846,19 @@ function petFormHTML(pet) {
       </div>
       <div class="field-group">
         <label>Normal Value (tokens)</label>
-        <input id="pf-nval" type="text" value="${esc(p.normal_value||'')}" placeholder="e.g. 1000 or free"/>
+        <input id="pf-nval" type="number" min="0" value="${p.normal_value||0}"/>
       </div>
       <div class="field-group">
         <label>Gold Value (tokens)</label>
-        <input id="pf-gval" type="text" value="${esc(p.gold_value||'')}" placeholder="e.g. 2500 or special"/>
+        <input id="pf-gval" type="number" min="0" value="${p.gold_value||0}"/>
       </div>
       <div class="field-group">
         <label>Rainbow Value (tokens)</label>
-       <input id="pf-rval" type="text" value="${esc(p.rainbow_value||'')}" placeholder="e.g. 5000 or rare"/>
+        <input id="pf-rval" type="number" min="0" value="${p.rainbow_value||0}"/>
+      </div>
+      <div class="field-group">
+        <label>Pet Power ⚡</label>
+        <input id="pf-power" type="number" min="0" value="${p.pet_power||0}" placeholder="e.g. 1500"/>
       </div>
       <div class="field-group" style="display:flex;gap:1.5rem;align-items:center;padding-top:.5rem;">
         <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.88rem;text-transform:none;letter-spacing:0;">
@@ -834,9 +884,10 @@ function getPetFormData() {
     category:       val('pf-cat'),
     image_url:      val('pf-img'),
     existence_rate: val('pf-rate'),
-    normal_value:   document.getElementById('pf-nval')?.value.trim() || '',
-    gold_value:     document.getElementById('pf-gval')?.value.trim() || '',
-    rainbow_value:  document.getElementById('pf-rval')?.value.trim() || '',
+    normal_value:   parseInt(document.getElementById('pf-nval')?.value)    || 0,
+    gold_value:     parseInt(document.getElementById('pf-gval')?.value)    || 0,
+    rainbow_value:  parseInt(document.getElementById('pf-rval')?.value)    || 0,
+    pet_power:      parseInt(document.getElementById('pf-power')?.value)   || 0,
     has_gold:       document.getElementById('pf-hasgold')?.checked !== false,
     has_rainbow:    document.getElementById('pf-hasrb')?.checked   !== false,
     notes:          document.getElementById('pf-notes')?.value?.trim()     || '',
