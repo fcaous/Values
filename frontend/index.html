@@ -10,9 +10,26 @@
 </head>
 <body>
 
+<!-- Mobile Nav Overlay -->
+<div class="mobile-nav-overlay" id="mobile-nav-overlay">
+  <a onclick="showPage('home');closeMobileNav()"       class="nav-link">🏠 Home</a>
+  <a onclick="showPage('calculator');closeMobileNav()" class="nav-link">🧮 Calculator</a>
+  <a onclick="showPage('credits');closeMobileNav()"    class="nav-link">👥 Credits</a>
+  <a onclick="showPage('admin');closeMobileNav()"      class="nav-link">🔐 Admin</a>
+  <a onclick="showPage('settings');closeMobileNav()"   class="nav-link">⚙ Settings</a>
+  <div class="mobile-nav-divider"></div>
+  <div class="mobile-status-row">
+    <div class="status-pill" id="status-pill-mobile">
+      <span class="status-dot" id="mob-status-dot"></span>
+      <span id="mob-status-text">CONNECTING</span>
+    </div>
+    <div class="pet-counter" id="pet-counter-mobile">— pets</div>
+  </div>
+</div>
+
 <!-- NAV -->
 <nav id="main-nav">
-  <div class="nav-logo" onclick="showPage('home')" id="nav-logo">
+  <div class="nav-logo" onclick="showPage('home');closeMobileNav()" id="nav-logo">
     <span class="logo-csu">CSU</span>
     <span class="logo-vl">VALUE LIST</span>
     <span class="logo-version" id="nav-version">v1.0</span>
@@ -31,6 +48,9 @@
     </div>
     <div class="pet-counter" id="pet-counter">— pets</div>
   </div>
+  <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <!-- ══ HOME ══ -->
@@ -93,6 +113,11 @@
           <input id="calc-search-your" type="text" placeholder="Search pet to add..." oninput="calcSearch('your')" autocomplete="off"/>
         </div>
         <div class="calc-dropdown" id="calc-drop-your"></div>
+        <div class="calc-manual-row">
+          <input type="text"   id="calc-manual-label-your"  placeholder="Label (optional)" />
+          <input type="number" id="calc-manual-tokens-your" placeholder="Tokens" min="0"/>
+          <button class="btn-add-tokens" onclick="addManualTokens('your')">+ Add</button>
+        </div>
         <div class="calc-items" id="your-items">
           <div class="calc-empty">No pets added yet</div>
         </div>
@@ -115,6 +140,11 @@
           <input id="calc-search-their" type="text" placeholder="Search pet to add..." oninput="calcSearch('their')" autocomplete="off"/>
         </div>
         <div class="calc-dropdown" id="calc-drop-their"></div>
+        <div class="calc-manual-row">
+          <input type="text"   id="calc-manual-label-their"  placeholder="Label (optional)" />
+          <input type="number" id="calc-manual-tokens-their" placeholder="Tokens" min="0"/>
+          <button class="btn-add-tokens" onclick="addManualTokens('their')">+ Add</button>
+        </div>
         <div class="calc-items" id="their-items">
           <div class="calc-empty">No pets added yet</div>
         </div>
