@@ -770,6 +770,8 @@ async function loadAdminLog() {
     list.innerHTML = `<div class="log-empty" style="color:var(--danger);">Failed to load log: ${esc(e.message)}</div>`;
   }
 }
+
+async function loadAdminPets() {
   const list = document.getElementById('admin-pet-list');
   if (!list) return;
   list.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--text-muted);">Loading...</div>';
