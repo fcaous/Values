@@ -459,7 +459,7 @@ function openPetModal(pet) {
               ? `<span class="stat-value">${fmtVal(gv)}</span>
                  <span class="stat-unit">tokens</span>
                  ${goldMultHtml}`
-              : `<span class="stat-value" style="font-size:.9rem;">N/A</span>
+              : `<span class="stat-value" style="font-size:.9rem;">O/C</span>
                  <span class="stat-unavail">no variant</span>`
             }
           </div>
@@ -471,7 +471,7 @@ function openPetModal(pet) {
               ? `<span class="stat-value">${fmtVal(rv)}</span>
                  <span class="stat-unit">tokens</span>
                  ${rainbowMultHtml}`
-              : `<span class="stat-value" style="font-size:.9rem;">N/A</span>
+              : `<span class="stat-value" style="font-size:.9rem;">O/C</span>
                  <span class="stat-unavail">no variant</span>`
             }
           </div>
