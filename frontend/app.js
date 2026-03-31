@@ -376,6 +376,7 @@ function renderPetGrid() {
         <div class="pet-card-name">${esc(pet.name)}</div>
         ${showRate ? `<div class="pet-card-rate">${esc(pet.existence_rate || 'Unknown')}</div>` : ''}
         <div class="pet-card-value">${fmtNum(showVal)}<span class="val-unit">tokens</span></div>
+        ${pet.pet_power ? `<div class="pet-card-power">⚡ ${esc(String(pet.pet_power))}</div>` : ''}
         <div class="pet-variants">
           ${pet.has_gold    ? '<span class="pv-badge gold">GOLD</span>'    : ''}
           ${pet.has_rainbow ? '<span class="pv-badge rainbow">RAINBOW</span>' : ''}
@@ -437,7 +438,7 @@ function openPetModal(pet) {
       ${pet.pet_power ? `
       <div class="pet-modal-rate" style="margin-bottom:.9rem;">
         <span class="rate-label">⚡ PET POWER</span>
-        <span class="rate-value" style="color:var(--gold);">${fmtNum(pet.pet_power)}</span>
+        <span class="rate-value" style="color:var(--gold);">${esc(String(pet.pet_power))}</span>
       </div>` : ''}
 
       <div class="pet-stats-section">
@@ -858,7 +859,7 @@ function petFormHTML(pet) {
       </div>
       <div class="field-group">
         <label>Pet Power ⚡</label>
-        <input id="pf-power" type="number" min="0" value="${p.pet_power||0}" placeholder="e.g. 1500"/>
+        <input id="pf-power" type="text" value="${esc(p.pet_power||'')}" placeholder="e.g. 1500 or High or 2.5K"/>
       </div>
       <div class="field-group" style="display:flex;gap:1.5rem;align-items:center;padding-top:.5rem;">
         <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.88rem;text-transform:none;letter-spacing:0;">
@@ -887,7 +888,7 @@ function getPetFormData() {
     normal_value:   parseInt(document.getElementById('pf-nval')?.value)    || 0,
     gold_value:     parseInt(document.getElementById('pf-gval')?.value)    || 0,
     rainbow_value:  parseInt(document.getElementById('pf-rval')?.value)    || 0,
-    pet_power:      parseInt(document.getElementById('pf-power')?.value)   || 0,
+    pet_power:      (document.getElementById('pf-power')?.value?.trim()) || '',
     has_gold:       document.getElementById('pf-hasgold')?.checked !== false,
     has_rainbow:    document.getElementById('pf-hasrb')?.checked   !== false,
     notes:          document.getElementById('pf-notes')?.value?.trim()     || '',
