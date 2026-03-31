@@ -968,7 +968,50 @@ body.density-spacious .pet-grid { grid-template-columns: repeat(auto-fill, minma
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent-med); }
 
-/* ── MANUAL TOKEN CALC ── */
+/* ── ADMIN LOG ── */
+.log-empty {
+  padding: 2rem; text-align: center;
+  color: var(--text-muted); font-size: .9rem;
+}
+.log-row {
+  display: flex; gap: .85rem; align-items: flex-start;
+  padding: .85rem 1.1rem; border-bottom: 1px solid var(--border2);
+  transition: background .1s;
+}
+.log-row:last-child { border-bottom: none; }
+.log-row:hover { background: var(--accent-pale); }
+.log-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: .1rem; }
+.log-body { flex: 1; min-width: 0; }
+.log-header-row {
+  display: flex; align-items: center; gap: .55rem;
+  flex-wrap: wrap; margin-bottom: .25rem;
+}
+.log-admin {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .95rem; font-weight: 700; color: var(--text);
+}
+.log-time {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .65rem; color: var(--text-subtle);
+  margin-left: auto;
+}
+.log-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .6rem; font-weight: 700;
+  padding: 2px 6px; border-radius: 4px;
+  text-transform: uppercase; letter-spacing: .04em;
+  border: 1px solid transparent;
+}
+.log-badge-add   { background: rgba(22,128,60,.12);  color: var(--success); border-color: rgba(22,128,60,.25); }
+.log-badge-edit  { background: var(--accent-pale);   color: var(--accent);  border-color: var(--accent-dim); }
+.log-badge-del   { background: rgba(192,57,43,.1);   color: var(--danger);  border-color: rgba(192,57,43,.25); }
+.log-badge-other { background: var(--card-alt);      color: var(--text-muted); border-color: var(--border); }
+.log-detail {
+  font-size: .85rem; color: var(--text-muted);
+  line-height: 1.45; word-break: break-word;
+}
+
+
 .calc-manual-row {
   display: flex; align-items: center; gap: .6rem;
   padding: .6rem; border-top: 1px solid var(--border2);
