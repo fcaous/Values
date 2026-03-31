@@ -132,8 +132,23 @@ app.get('/api/credits', async (req, res) => {
 });
 
 // ══════════════════════════════════════════
-//  ADMIN AUTH
+//  LOGGING
 // ══════════════════════════════════════════
+async function writeLog(adminUsername, action, detail) {
+  try {
+    await sbRequest('POST', 'admin_logs', {
+      admin_username: adminUsername,
+      action,
+      detail,
+      created_at: new Date().toISOString(),
+    }, '');
+  } catch (e) {
+    // Non-fatal — log silently
+    console.error('Log write failed:', e.message);
+  }
+}
+
+
 app.post('/api/admin/login', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -180,6 +195,7 @@ app.post('/api/admin/pets', authAdmin, async (req, res) => {
       updated_at:     new Date().toISOString(),
     };
     await sbRequest('POST', 'pets', pet, '');
+    await writeLog(req.admin.username, 'ADD_PET', `Added pet "${pet.name}" (${pet.category}) — Normal: ${pet.normal_value}, Gold: ${pet.gold_value}, Rainbow: ${pet.rainbow_value}${pet.pet_power ? ', Power: ' + pet.pet_power : ''}`);
     res.json({ success: true, pet });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -204,14 +220,35 @@ app.put('/api/admin/pets/:id', authAdmin, async (req, res) => {
     if (has_rainbow    !== undefined) u.has_rainbow    = has_rainbow;
     if (notes          !== undefined) u.notes          = notes;
     await sbRequest('PATCH', 'pets', u, `?id=eq.${encodeURIComponent(req.params.id)}`);
+    const changedFields = Object.keys(u).filter(k => k !== 'updated_at').join(', ');
+    await writeLog(req.admin.username, 'EDIT_PET', `Edited pet ID "${req.params.id}" — changed: ${changedFields}`);
     res.json({ success: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.delete('/api/admin/pets/:id', authAdmin, async (req, res) => {
   try {
+    // Fetch name before deleting for a useful log entry
+    let petName = req.params.id;
+    try {
+      const rows = await sbRequest('GET', 'pets', null, `?id=eq.${encodeURIComponent(req.params.id)}&select=name`);
+      if (rows && rows[0]) petName = rows[0].name;
+    } catch {}
     await sbRequest('DELETE', 'pets', null, `?id=eq.${encodeURIComponent(req.params.id)}`);
+    await writeLog(req.admin.username, 'DELETE_PET', `Deleted pet "${petName}"`);
     res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ══════════════════════════════════════════
+//  ADMIN — LOGS
+// ══════════════════════════════════════════
+app.get('/api/admin/logs', authAdmin, async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 50, 200);
+    const rows = await sbRequest('GET', 'admin_logs', null,
+      `?order=created_at.desc&limit=${limit}&select=*`);
+    res.json(rows || []);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
