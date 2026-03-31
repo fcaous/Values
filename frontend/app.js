@@ -200,6 +200,12 @@ function fmtNum(n) {
   return n.toLocaleString();
 }
 
+function fmtVal(v) {
+  const n = parseInt(v);
+  if (!isNaN(n) && String(v).trim() === String(n)) return fmtNum(n);
+  return String(v || '—');
+}
+
 async function apiFetch(method, path, body, headers = {}) {
   const opts = { method, headers: { 'Content-Type': 'application/json', ...headers } };
   if (body) opts.body = JSON.stringify(body);
