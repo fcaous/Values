@@ -375,7 +375,7 @@ function renderPetGrid() {
       <div class="pet-card-body">
         <div class="pet-card-name">${esc(pet.name)}</div>
         ${showRate ? `<div class="pet-card-rate">${esc(pet.existence_rate || 'Unknown')}</div>` : ''}
-        <div class="pet-card-value">${fmtNum(showVal)}<span class="val-unit">tokens</span></div>
+        <div class="pet-card-value">${fmtVal(showVal)}<span class="val-unit">${isNaN(parseInt(showVal)) ? '' : 'tokens'}</span></div>
         ${pet.pet_power ? `<div class="pet-card-power">⚡ ${esc(String(pet.pet_power))}</div>` : ''}
         <div class="pet-variants">
           ${pet.has_gold    ? '<span class="pv-badge gold">GOLD</span>'    : ''}
@@ -448,7 +448,7 @@ function openPetModal(pet) {
           <div class="stat-card s-normal">
             <span class="stat-icon">🔵</span>
             <span class="stat-variant-name">NORMAL</span>
-            <span class="stat-value">${fmtNum(nv)}</span>
+            <span class="stat-value">${fmtVal(nv)}</span>
             <span class="stat-unit">tokens</span>
           </div>
 
@@ -456,7 +456,7 @@ function openPetModal(pet) {
             <span class="stat-icon">⭐</span>
             <span class="stat-variant-name">GOLD</span>
             ${pet.has_gold
-              ? `<span class="stat-value">${fmtNum(gv)}</span>
+              ? `<span class="stat-value">${fmtVal(gv)}</span>
                  <span class="stat-unit">tokens</span>
                  ${goldMultHtml}`
               : `<span class="stat-value" style="font-size:.9rem;">N/A</span>
@@ -468,7 +468,7 @@ function openPetModal(pet) {
             <span class="stat-icon">🌈</span>
             <span class="stat-variant-name">RAINBOW</span>
             ${pet.has_rainbow
-              ? `<span class="stat-value">${fmtNum(rv)}</span>
+              ? `<span class="stat-value">${fmtVal(rv)}</span>
                  <span class="stat-unit">tokens</span>
                  ${rainbowMultHtml}`
               : `<span class="stat-value" style="font-size:.9rem;">N/A</span>
@@ -885,15 +885,15 @@ function petFormHTML(pet) {
       </div>
       <div class="field-group">
         <label>Normal Value (tokens)</label>
-        <input id="pf-nval" type="number" min="0" value="${p.normal_value||0}"/>
+        <input id="pf-nval" type="text" value="${esc(String(p.normal_value||''))}" placeholder="e.g. 5000 or O/C"/>
       </div>
       <div class="field-group">
         <label>Gold Value (tokens)</label>
-        <input id="pf-gval" type="number" min="0" value="${p.gold_value||0}"/>
+        <input id="pf-gval" type="text" value="${esc(String(p.gold_value||''))}" placeholder="e.g. 10000 or O/C"/>
       </div>
       <div class="field-group">
         <label>Rainbow Value (tokens)</label>
-        <input id="pf-rval" type="number" min="0" value="${p.rainbow_value||0}"/>
+        <input id="pf-rval" type="text" value="${esc(String(p.rainbow_value||''))}" placeholder="e.g. 20000 or O/C"/>
       </div>
       <div class="field-group">
         <label>Pet Power ⚡</label>
@@ -923,9 +923,9 @@ function getPetFormData() {
     category:       val('pf-cat'),
     image_url:      val('pf-img'),
     existence_rate: val('pf-rate'),
-    normal_value:   parseInt(document.getElementById('pf-nval')?.value)    || 0,
-    gold_value:     parseInt(document.getElementById('pf-gval')?.value)    || 0,
-    rainbow_value:  parseInt(document.getElementById('pf-rval')?.value)    || 0,
+    normal_value:   document.getElementById('pf-nval')?.value?.trim() || '0',
+    gold_value:     document.getElementById('pf-gval')?.value?.trim() || '0',
+    rainbow_value:  document.getElementById('pf-rval')?.value?.trim() || '0',
     pet_power:      (document.getElementById('pf-power')?.value?.trim()) || '',
     has_gold:       document.getElementById('pf-hasgold')?.checked !== false,
     has_rainbow:    document.getElementById('pf-hasrb')?.checked   !== false,
