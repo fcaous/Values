@@ -724,6 +724,7 @@ function showAdminDash() {
   document.getElementById('admin-dash-view').style.display  = 'block';
   setEl('adm-welcome', `Welcome back, ${adminSession.display_name} · ${adminSession.role}`);
   loadAdminPets();
+  loadAdminLog();
 }
 
 // ══════════════════════════════════════════
@@ -731,7 +732,44 @@ function showAdminDash() {
 // ══════════════════════════════════════════
 let adminPets = [];
 
-async function loadAdminPets() {
+async function loadAdminLog() {
+  const list = document.getElementById('admin-log-list');
+  if (!list || !adminSession) return;
+  try {
+    const logs = await apiFetch('GET', '/api/admin/logs?limit=60', null, { 'x-admin-token': adminSession.token });
+    if (!logs.length) {
+      list.innerHTML = '<div class="log-empty">No activity yet</div>';
+      return;
+    }
+    list.innerHTML = '';
+    logs.forEach(entry => {
+      const row = document.createElement('div');
+      row.className = 'log-row';
+      const dt = new Date(entry.created_at);
+      const timeStr = dt.toLocaleDateString([], { month: 'short', day: 'numeric' })
+                    + ' ' + dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const iconMap = { ADD_PET: '➕', EDIT_PET: '✏️', DELETE_PET: '🗑️' };
+      const icon = iconMap[entry.action] || '📋';
+      const badgeClass = entry.action === 'ADD_PET' ? 'log-badge-add'
+                       : entry.action === 'EDIT_PET' ? 'log-badge-edit'
+                       : entry.action === 'DELETE_PET' ? 'log-badge-del' : 'log-badge-other';
+      row.innerHTML = `
+        <span class="log-icon">${icon}</span>
+        <div class="log-body">
+          <div class="log-header-row">
+            <span class="log-admin">${esc(entry.admin_username)}</span>
+            <span class="log-badge ${badgeClass}">${esc(entry.action.replace('_',' '))}</span>
+            <span class="log-time">${timeStr}</span>
+          </div>
+          <div class="log-detail">${esc(entry.detail)}</div>
+        </div>
+      `;
+      list.appendChild(row);
+    });
+  } catch (e) {
+    list.innerHTML = `<div class="log-empty" style="color:var(--danger);">Failed to load log: ${esc(e.message)}</div>`;
+  }
+}
   const list = document.getElementById('admin-pet-list');
   if (!list) return;
   list.innerHTML = '<div style="padding:1.5rem;text-align:center;color:var(--text-muted);">Loading...</div>';
