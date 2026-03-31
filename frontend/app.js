@@ -386,7 +386,7 @@ function openPetModal(pet) {
       '<span class="stat-icon">' + icon + '</span>' +
       '<span class="stat-variant-name">' + label + '</span>' +
       (locked
-        ? '<span class="stat-value" style="font-size:.9rem;">N/A</span><span class="stat-unavail">no variant</span>'
+        ? '<span class="stat-value" style="font-size:.9rem;">O/C</span><span class="stat-unavail">no variant</span>'
         : (oc
             ? '<span class="stat-value oc-stat-val">👑 O/C</span><span class="stat-unit">owner\'s choice</span>'
             : '<span class="stat-value">' + fmtVal(val) + '</span><span class="stat-unit">tokens</span>' + (mult ? '<span class="stat-multiplier">' + mult + '</span>' : '')
