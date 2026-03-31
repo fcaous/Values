@@ -172,7 +172,7 @@ app.post('/api/admin/pets', authAdmin, async (req, res) => {
       normal_value:   parseInt(normal_value)  || 0,
       gold_value:     parseInt(gold_value)    || 0,
       rainbow_value:  parseInt(rainbow_value) || 0,
-      pet_power:      parseInt(pet_power)     || 0,
+      pet_power:      pet_power ? String(pet_power).trim() : '',
       has_gold:       has_gold    !== false,
       has_rainbow:    has_rainbow !== false,
       notes:          notes || '',
@@ -199,7 +199,7 @@ app.put('/api/admin/pets/:id', authAdmin, async (req, res) => {
     if (normal_value   !== undefined) u.normal_value   = parseInt(normal_value)  || 0;
     if (gold_value     !== undefined) u.gold_value     = parseInt(gold_value)    || 0;
     if (rainbow_value  !== undefined) u.rainbow_value  = parseInt(rainbow_value) || 0;
-    if (pet_power      !== undefined) u.pet_power      = parseInt(pet_power)     || 0;
+    if (pet_power      !== undefined) u.pet_power      = pet_power ? String(pet_power).trim() : '';
     if (has_gold       !== undefined) u.has_gold       = has_gold;
     if (has_rainbow    !== undefined) u.has_rainbow    = has_rainbow;
     if (notes          !== undefined) u.notes          = notes;
