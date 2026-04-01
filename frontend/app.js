@@ -15,14 +15,9 @@ let searchDebounce = null;
 
 // ── Settings ───────────────────────────────────────────────────────
 const DEFAULT_SETTINGS = {
-  accentColor:    'blue',
-  gridDensity:    'normal',
-  sortOrder:      'oc_first',
-  defaultVariant: 'all',
-  showRate:       true,
-  showCat:        true,
-  showPower:      true,
-  showLastEdited: false,
+  accentColor: 'blue', gridDensity: 'normal', sortOrder: 'oc_first',
+  defaultVariant: 'all', showRate: true, showCat: true, showPower: true,
+  showDemand: true, showLastEdited: false,
 };
 let settings = { ...DEFAULT_SETTINGS };
 
@@ -34,7 +29,14 @@ const ACCENT_DARK = {
   rose:   { '--accent':'#f06080','--accent-med':'#f57d98','--accent-light':'#f8a0b3','--accent-dim':'rgba(240,96,128,.18)','--accent-pale':'rgba(240,96,128,.09)' },
 };
 
-// Restore admin session
+const DEMAND_CONFIG = {
+  'Very High': { color: '#ff4d4d', bg: 'rgba(255,77,77,.15)', border: 'rgba(255,77,77,.35)', icon: '🔥' },
+  'High':      { color: '#ff8c00', bg: 'rgba(255,140,0,.15)',  border: 'rgba(255,140,0,.35)',  icon: '📈' },
+  'Medium':    { color: '#f0c030', bg: 'rgba(240,192,48,.15)', border: 'rgba(240,192,48,.35)', icon: '➡️' },
+  'Low':       { color: '#4da6d8', bg: 'rgba(77,166,216,.15)', border: 'rgba(77,166,216,.35)', icon: '📉' },
+  'Very Low':  { color: '#566d85', bg: 'rgba(86,109,133,.15)', border: 'rgba(86,109,133,.35)', icon: '❄️' },
+};
+
 try { const s = localStorage.getItem('vx_admin_session'); if (s) adminSession = JSON.parse(s); } catch {}
 
 // ══════════════════════════════════════════════════════════════════
@@ -44,12 +46,14 @@ function loadSettings() {
   try { const s = localStorage.getItem('csu_settings'); if (s) settings = { ...DEFAULT_SETTINGS, ...JSON.parse(s) }; } catch {}
 }
 function saveSettings() {
-  settings.sortOrder      = document.getElementById('set-sort')?.value    || settings.sortOrder;
-  settings.defaultVariant = document.getElementById('set-variant')?.value || settings.defaultVariant;
-  settings.showRate       = document.getElementById('set-showrate')?.checked  ?? settings.showRate;
-  settings.showCat        = document.getElementById('set-showcat')?.checked   ?? settings.showCat;
-  settings.showPower      = document.getElementById('set-showpower')?.checked ?? settings.showPower;
-  settings.showLastEdited = document.getElementById('set-showedited')?.checked ?? settings.showLastEdited;
+  const g = id => document.getElementById(id);
+  if (g('set-sort'))       settings.sortOrder      = g('set-sort').value;
+  if (g('set-variant'))    settings.defaultVariant = g('set-variant').value;
+  if (g('set-showrate'))   settings.showRate        = g('set-showrate').checked;
+  if (g('set-showcat'))    settings.showCat         = g('set-showcat').checked;
+  if (g('set-showpower'))  settings.showPower       = g('set-showpower').checked;
+  if (g('set-showdemand')) settings.showDemand      = g('set-showdemand').checked;
+  if (g('set-showedited')) settings.showLastEdited  = g('set-showedited').checked;
   try { localStorage.setItem('csu_settings', JSON.stringify(settings)); } catch {}
   renderPetGrid();
 }
@@ -57,24 +61,22 @@ function resetSettings() {
   if (!confirm('Reset all settings to defaults?')) return;
   settings = { ...DEFAULT_SETTINGS };
   try { localStorage.removeItem('csu_settings'); } catch {}
-  applySettingsToUI();
-  applyDensity('normal');
-  applyAccentColor('blue');
-  renderPetGrid();
+  applySettingsToUI(); applyDensity('normal'); applyAccentColor('blue'); renderPetGrid();
   toast('Settings reset');
 }
 function applySettingsToUI() {
-  const el = id => document.getElementById(id);
-  if (el('set-density'))    el('set-density').value      = settings.gridDensity;
-  if (el('set-sort'))       el('set-sort').value         = settings.sortOrder;
-  if (el('set-variant'))    el('set-variant').value      = settings.defaultVariant;
-  if (el('set-showrate'))   el('set-showrate').checked   = settings.showRate;
-  if (el('set-showcat'))    el('set-showcat').checked    = settings.showCat;
-  if (el('set-showpower'))  el('set-showpower').checked  = settings.showPower;
-  if (el('set-showedited')) el('set-showedited').checked = settings.showLastEdited;
-  if (el('sort-filter'))    el('sort-filter').value      = settings.sortOrder;
+  const g = id => document.getElementById(id);
+  if (g('set-density'))    g('set-density').value      = settings.gridDensity;
+  if (g('set-sort'))       g('set-sort').value         = settings.sortOrder;
+  if (g('set-variant'))    g('set-variant').value      = settings.defaultVariant;
+  if (g('set-showrate'))   g('set-showrate').checked   = settings.showRate;
+  if (g('set-showcat'))    g('set-showcat').checked    = settings.showCat;
+  if (g('set-showpower'))  g('set-showpower').checked  = settings.showPower;
+  if (g('set-showdemand')) g('set-showdemand').checked = settings.showDemand;
+  if (g('set-showedited')) g('set-showedited').checked = settings.showLastEdited;
+  if (g('sort-filter'))    g('sort-filter').value      = settings.sortOrder;
   document.querySelectorAll('.accent-swatch').forEach(s => s.classList.toggle('active', s.dataset.accent === settings.accentColor));
-  const nv = el('nav-version'); const vd = el('settings-ver-display');
+  const nv = g('nav-version'), vd = g('settings-ver-display');
   if (nv && vd) vd.textContent = nv.textContent;
 }
 function applyDensity(val) {
@@ -98,20 +100,20 @@ function setAccent(color) { applyAccentColor(color); }
 // ══════════════════════════════════════════════════════════════════
 //  FAVORITES
 // ══════════════════════════════════════════════════════════════════
-function getFavs() {
-  try { return new Set(JSON.parse(localStorage.getItem('csu_favs') || '[]')); } catch { return new Set(); }
-}
-function saveFavs(set) {
-  try { localStorage.setItem('csu_favs', JSON.stringify([...set])); } catch {}
-}
+function getFavs() { try { return new Set(JSON.parse(localStorage.getItem('csu_favs') || '[]')); } catch { return new Set(); } }
+function saveFavs(set) { try { localStorage.setItem('csu_favs', JSON.stringify([...set])); } catch {} }
 function isFav(id) { return getFavs().has(id); }
 function toggleFav(id, e) {
   e?.stopPropagation();
   const favs = getFavs();
   if (favs.has(id)) favs.delete(id); else favs.add(id);
-  saveFavs(favs);
-  applyVariantFilter();
+  saveFavs(favs); applyVariantFilter(); updateFavCount();
   toast(favs.has(id) ? '⭐ Added to favorites' : 'Removed from favorites');
+}
+function updateFavCount() {
+  const el = document.getElementById('ft-fav-count');
+  const c = getFavs().size;
+  if (el) el.textContent = c > 0 ? ' ' + c : '';
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -120,58 +122,50 @@ function toggleFav(id, e) {
 function isOC(v) {
   if (v === null || v === undefined || v === '') return false;
   const s = String(v).toLowerCase().trim();
-  return s === 'o/c' || s === 'oc' || s.startsWith('o/c') || s.includes('o/c');
+  return s === 'o/c' || s === 'oc' || s.startsWith('o/c');
 }
-function esc(s) {
-  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function val(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
 function setEl(id, text) { const el = document.getElementById(id); if (el) el.textContent = text; }
 function fmtNum(n) {
-  n = parseInt(n) || 0;
+  n = parseFloat(n) || 0;
   if (n >= 1e9) return (n/1e9).toFixed(1).replace(/\.0$/,'') + 'B';
   if (n >= 1e6) return (n/1e6).toFixed(1).replace(/\.0$/,'') + 'M';
   if (n >= 1e3) return (n/1e3).toFixed(1).replace(/\.0$/,'') + 'K';
-  return n.toLocaleString();
+  return n % 1 === 0 ? n.toLocaleString() : n.toFixed(1);
 }
 function fmtVal(v) {
   if (isOC(v)) return 'O/C';
-  const n = parseInt(v);
-  if (!isNaN(n) && String(v).trim() === String(n)) return fmtNum(n);
+  const n = parseFloat(v);
+  if (!isNaN(n)) return fmtNum(n);
   return String(v || '—');
 }
 function fmtDate(iso) {
   if (!iso) return '';
   const d = new Date(iso);
-  return d.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })
-       + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  return d.toLocaleDateString([], { month:'short', day:'numeric', year:'numeric' }) + ' ' + d.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
 }
 function fmtDateShort(iso) {
   if (!iso) return '';
-  const d = new Date(iso);
-  const now = new Date();
-  const diff = now - d;
-  if (diff < 60000) return 'just now';
-  if (diff < 3600000) return Math.floor(diff/60000) + 'm ago';
+  const d = new Date(iso), now = new Date(), diff = now - d;
+  if (diff < 60000)    return 'just now';
+  if (diff < 3600000)  return Math.floor(diff/60000) + 'm ago';
   if (diff < 86400000) return Math.floor(diff/3600000) + 'h ago';
   if (diff < 604800000) return Math.floor(diff/86400000) + 'd ago';
-  return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  return d.toLocaleDateString([], { month:'short', day:'numeric' });
 }
+function todayISO() { return new Date().toISOString().slice(0,16); }
+
 async function apiFetch(method, path, body, headers = {}) {
   const opts = { method, headers: { 'Content-Type':'application/json', ...headers } };
   if (body) opts.body = JSON.stringify(body);
-  const res  = await fetch(API + path, opts);
+  const res = await fetch(API + path, opts);
   const data = await res.json();
   if (!res.ok && data.error) throw new Error(data.error);
   return data;
 }
 async function copyToClipboard(text) {
-  try {
-    await navigator.clipboard.writeText(text);
-    toast('📋 Copied to clipboard!');
-  } catch {
-    toast('⚠ Could not copy');
-  }
+  try { await navigator.clipboard.writeText(text); toast('📋 Copied!'); } catch { toast('⚠ Could not copy'); }
 }
 
 let toastTimer;
@@ -195,6 +189,119 @@ function toggleMobileNav() {
 function closeMobileNav() {
   document.getElementById('mobile-nav-overlay')?.classList.remove('open');
   document.getElementById('nav-hamburger')?.classList.remove('open');
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  DEMAND HELPERS
+// ══════════════════════════════════════════════════════════════════
+function demandBadgeHTML(demand, size) {
+  if (!demand) return '';
+  const cfg = DEMAND_CONFIG[demand] || { color:'#8a9db5', bg:'rgba(138,157,181,.15)', border:'rgba(138,157,181,.35)', icon:'❓' };
+  const cls = size === 'lg' ? 'demand-badge demand-badge-lg' : 'demand-badge';
+  return `<span class="${cls}" style="color:${cfg.color};background:${cfg.bg};border-color:${cfg.border};">${cfg.icon} ${esc(demand)}</span>`;
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  LINE CHART
+// ══════════════════════════════════════════════════════════════════
+function buildChartSVG(points, width, height) {
+  width  = width  || 480;
+  height = height || 200;
+
+  const validPoints = points
+    .filter(p => !isNaN(parseFloat(p.token_value)))
+    .map(p => ({ ...p, num: parseFloat(p.token_value), date: new Date(p.recorded_at) }))
+    .sort((a, b) => a.date - b.date);
+
+  if (validPoints.length === 0) return '<div class="chart-empty">No numeric data points yet</div>';
+  if (validPoints.length === 1) {
+    return '<div class="chart-empty">Add at least 2 points to show a chart — current value: ' + fmtVal(validPoints[0].token_value) + '</div>';
+  }
+
+  const pad = { top: 28, right: 24, bottom: 44, left: 64 };
+  const w = width - pad.left - pad.right;
+  const h = height - pad.top - pad.bottom;
+
+  const minVal  = Math.min(...validPoints.map(p => p.num));
+  const maxVal  = Math.max(...validPoints.map(p => p.num));
+  const valRange = maxVal - minVal || (maxVal * 0.1) || 1;
+  const minDate = validPoints[0].date.getTime();
+  const maxDate = validPoints[validPoints.length - 1].date.getTime();
+  const dateRange = maxDate - minDate || 1;
+
+  const px = d => pad.left + ((d.getTime() - minDate) / dateRange) * w;
+  const py = n => pad.top + (1 - (n - minVal) / valRange) * h;
+
+  // Determine if values are recent (within a day) or spanning longer
+  const spanDays = (maxDate - minDate) / 86400000;
+
+  const pathParts = validPoints.map((p, i) => (i === 0 ? 'M' : 'L') + px(p.date).toFixed(1) + ',' + py(p.num).toFixed(1));
+  const linePath = pathParts.join(' ');
+  const areaPath = linePath + ` L${px(validPoints[validPoints.length-1].date).toFixed(1)},${(pad.top+h).toFixed(1)} L${pad.left},${(pad.top+h).toFixed(1)} Z`;
+
+  // Y axis grid + labels (4 ticks)
+  let yHTML = '';
+  for (let i = 0; i <= 4; i++) {
+    const v    = minVal + (valRange * i / 4);
+    const yPos = py(v).toFixed(1);
+    yHTML += `<line x1="${pad.left}" y1="${yPos}" x2="${pad.left+w}" y2="${yPos}" stroke="rgba(38,58,82,.9)" stroke-width="1" stroke-dasharray="4,3"/>`;
+    yHTML += `<text x="${pad.left - 6}" y="${parseFloat(yPos)+4}" text-anchor="end" fill="#566d85" font-size="10" font-family="'Share Tech Mono',monospace">${fmtVal(v)}</text>`;
+  }
+
+  // X axis labels (max 5)
+  let xHTML = '';
+  const xStep = Math.max(1, Math.ceil(validPoints.length / 5));
+  validPoints.forEach((p, i) => {
+    if (i % xStep !== 0 && i !== validPoints.length - 1) return;
+    const xPos = px(p.date).toFixed(1);
+    let label;
+    if (spanDays < 1)       label = p.date.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+    else if (spanDays < 60) label = p.date.toLocaleDateString([], { month:'short', day:'numeric' });
+    else                    label = p.date.toLocaleDateString([], { month:'short', year:'2-digit' });
+    xHTML += `<text x="${xPos}" y="${pad.top+h+18}" text-anchor="middle" fill="#566d85" font-size="10" font-family="'Share Tech Mono',monospace">${label}</text>`;
+  });
+
+  // Dots + tooltips
+  let dotsHTML = '';
+  validPoints.forEach(p => {
+    const cx = px(p.date).toFixed(1), cy = py(p.num).toFixed(1);
+    const tipDate = p.date.toLocaleDateString([], { month:'short', day:'numeric', year:'numeric' });
+    const tipLabel = p.label ? ` — ${p.label}` : '';
+    dotsHTML += `<circle cx="${cx}" cy="${cy}" r="5" fill="var(--accent)" stroke="var(--card)" stroke-width="2" class="chart-dot">
+      <title>${fmtVal(p.token_value)} tokens — ${tipDate}${tipLabel}</title>
+    </circle>`;
+    // Hover ring
+    dotsHTML += `<circle cx="${cx}" cy="${cy}" r="9" fill="transparent" stroke="transparent" class="chart-dot-hit">
+      <title>${fmtVal(p.token_value)} tokens — ${tipDate}${tipLabel}</title>
+    </circle>`;
+  });
+
+  // Latest value label
+  const lastP = validPoints[validPoints.length - 1];
+  const lastX = px(lastP.date), lastY = py(lastP.num);
+  const labelX = lastX + 8 > pad.left + w - 40 ? lastX - 50 : lastX + 8;
+  const labelHTML = `<text x="${labelX.toFixed(1)}" y="${(lastY - 8).toFixed(1)}" fill="var(--accent)" font-size="11" font-family="'Share Tech Mono',monospace" font-weight="700">${fmtVal(lastP.token_value)}</text>`;
+
+  return `<svg viewBox="0 0 ${width} ${height}" class="chart-svg" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:${height}px;">
+    <defs>
+      <linearGradient id="cg${Math.random().toString(36).slice(2,6)}" x1="0" y1="0" x2="0" y2="1" id="chartGrad">
+        <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.28"/>
+        <stop offset="100%" stop-color="var(--accent)" stop-opacity="0.02"/>
+      </linearGradient>
+    </defs>
+    ${yHTML}
+    ${xHTML}
+    <!-- X axis line -->
+    <line x1="${pad.left}" y1="${pad.top+h}" x2="${pad.left+w}" y2="${pad.top+h}" stroke="rgba(38,58,82,.9)" stroke-width="1"/>
+    <!-- Y axis line -->
+    <line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${pad.top+h}" stroke="rgba(38,58,82,.9)" stroke-width="1"/>
+    <!-- Area -->
+    <path d="${areaPath}" fill="url(#chartGrad)"/>
+    <!-- Line -->
+    <path d="${linePath}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    ${labelHTML}
+    ${dotsHTML}
+  </svg>`;
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -239,16 +346,10 @@ async function loadPets() {
     allPets = await apiFetch('GET', q);
     setEl('pet-counter', allPets.length + ' pets');
     setEl('pet-counter-mobile', allPets.length + ' pets');
-    updateFavCount();
-    applyVariantFilter();
+    updateFavCount(); applyVariantFilter();
   } catch (e) {
     document.getElementById('pet-grid').innerHTML = '<div class="grid-loading">Failed to load pets: ' + esc(e.message) + '</div>';
   }
-}
-function updateFavCount() {
-  const count = getFavs().size;
-  const el = document.getElementById('ft-fav-count');
-  if (el) el.textContent = count > 0 ? ' ' + count : '';
 }
 function getSortOrder() { return document.getElementById('sort-filter')?.value || settings.sortOrder || 'oc_first'; }
 function onSortChange() {
@@ -257,34 +358,24 @@ function onSortChange() {
   applyVariantFilter();
 }
 function sortPets(list) {
-  const order = getSortOrder();
-  const copy  = [...list];
+  const order = getSortOrder(), copy = [...list];
   const getRaw = p => variantFilter === 'gold' ? p.gold_value : variantFilter === 'rainbow' ? p.rainbow_value : p.normal_value;
-  const getNum = p => parseInt(getRaw(p)) || 0;
-
-  // O/C always floats to top
-  const ocPets  = copy.filter(p => isOC(getRaw(p)));
-  const nonOC   = copy.filter(p => !isOC(getRaw(p)));
+  const getNum = p => parseFloat(getRaw(p)) || 0;
+  const ocPets = copy.filter(p => isOC(getRaw(p)));
+  const nonOC  = copy.filter(p => !isOC(getRaw(p)));
   ocPets.sort((a,b) => a.name.localeCompare(b.name));
-
   if (order === 'oc_first' || order === 'expensive') nonOC.sort((a,b) => getNum(b) - getNum(a));
   else if (order === 'cheap') nonOC.sort((a,b) => getNum(a) - getNum(b));
   else if (order === 'az')    nonOC.sort((a,b) => a.name.localeCompare(b.name));
   else if (order === 'za')    nonOC.sort((a,b) => b.name.localeCompare(a.name));
-
   return [...ocPets, ...nonOC];
 }
 function applyVariantFilter() {
   const favs = getFavs();
-  if (variantFilter === 'fav') {
-    filteredPets = allPets.filter(p => favs.has(p.id));
-  } else if (variantFilter === 'gold') {
-    filteredPets = allPets.filter(p => p.has_gold);
-  } else if (variantFilter === 'rainbow') {
-    filteredPets = allPets.filter(p => p.has_rainbow);
-  } else {
-    filteredPets = allPets;
-  }
+  if (variantFilter === 'fav')     filteredPets = allPets.filter(p => favs.has(p.id));
+  else if (variantFilter === 'gold')    filteredPets = allPets.filter(p => p.has_gold);
+  else if (variantFilter === 'rainbow') filteredPets = allPets.filter(p => p.has_rainbow);
+  else filteredPets = allPets;
   filteredPets = sortPets(filteredPets);
   setEl('result-count', filteredPets.length + ' result' + (filteredPets.length !== 1 ? 's' : ''));
   renderPetGrid();
@@ -301,49 +392,47 @@ function renderPetGrid() {
   const grid = document.getElementById('pet-grid');
   if (!grid) return;
   if (variantFilter === 'fav' && !filteredPets.length) {
-    grid.innerHTML = '<div class="no-results">No favorites yet — star a pet to save it ⭐</div>';
-    return;
+    grid.innerHTML = '<div class="no-results">No favorites yet — star a pet to save it ⭐</div>'; return;
   }
   if (!filteredPets.length) { grid.innerHTML = '<div class="no-results">No pets found 🔍</div>'; return; }
 
-  const showRate    = document.getElementById('set-showrate')?.checked   ?? settings.showRate;
-  const showCat     = document.getElementById('set-showcat')?.checked    ?? settings.showCat;
-  const showPower   = document.getElementById('set-showpower')?.checked  ?? settings.showPower;
-  const showEdited  = document.getElementById('set-showedited')?.checked ?? settings.showLastEdited;
-  const favs        = getFavs();
+  const showRate   = document.getElementById('set-showrate')?.checked   ?? settings.showRate;
+  const showCat    = document.getElementById('set-showcat')?.checked    ?? settings.showCat;
+  const showPower  = document.getElementById('set-showpower')?.checked  ?? settings.showPower;
+  const showDemand = document.getElementById('set-showdemand')?.checked ?? settings.showDemand;
+  const showEdited = document.getElementById('set-showedited')?.checked ?? settings.showLastEdited;
+  const favs       = getFavs();
 
   grid.innerHTML = '';
   filteredPets.forEach(pet => {
-    const rawVal  = variantFilter === 'gold' ? pet.gold_value : variantFilter === 'rainbow' ? pet.rainbow_value : pet.normal_value;
-    const faved   = favs.has(pet.id);
-    const oc      = isOC(rawVal);
-
+    const rawVal = variantFilter === 'gold' ? pet.gold_value : variantFilter === 'rainbow' ? pet.rainbow_value : pet.normal_value;
+    const faved  = favs.has(pet.id);
+    const oc     = isOC(rawVal);
     const imgContent = pet.image_url
       ? '<img src="' + esc(pet.image_url) + '" alt="' + esc(pet.name) + '" onerror="this.parentElement.innerHTML=\'🐾\'"/>'
       : '🐾';
+    const demandCfg = pet.demand ? (DEMAND_CONFIG[pet.demand] || null) : null;
 
     const card = document.createElement('div');
     card.className = 'pet-card' + (oc ? ' is-oc' : '') + (faved ? ' is-fav' : '');
     card.onclick = () => openPetModal(pet);
-
     card.innerHTML =
       '<div class="pet-card-img">' + imgContent + '</div>' +
       (showCat ? '<div class="pet-cat-tag">' + esc(pet.category || 'standard') + '</div>' : '') +
-      '<button class="pet-fav-btn" onclick="toggleFav(\'' + esc(pet.id) + '\',event)" title="Favorite">' + (faved ? '⭐' : '☆') + '</button>' +
+      '<button class="pet-fav-btn" onclick="toggleFav(\'' + esc(pet.id) + '\',event)">' + (faved ? '⭐' : '☆') + '</button>' +
       '<div class="pet-card-body">' +
         '<div class="pet-card-name">' + esc(pet.name) + '</div>' +
         (showRate && pet.existence_rate ? '<div class="pet-card-rate">' + esc(pet.existence_rate) + '</div>' : '') +
-        '<div class="pet-card-value' + (oc ? ' oc-val' : '') + '">' +
-          (oc ? '<span class="oc-crown">👑</span> ' : '') +
-          fmtVal(rawVal) +
-          (oc ? '' : '<span class="val-unit">tokens</span>') +
+        '<div class="pet-card-value' + (oc ? ' oc-val' : '') + '">' + (oc ? '👑 ' : '') + fmtVal(rawVal) + (oc ? '' : '<span class="val-unit">tokens</span>') + '</div>' +
+        '<div class="pet-card-meta-row">' +
+          (showPower  && pet.pet_power ? '<div class="pet-card-power">⚡ ' + esc(String(pet.pet_power)) + '</div>' : '') +
+          (showDemand && demandCfg    ? '<div class="pet-card-demand" style="color:' + demandCfg.color + ';background:' + demandCfg.bg + ';border-color:' + demandCfg.border + ';">' + demandCfg.icon + ' ' + esc(pet.demand) + '</div>' : '') +
         '</div>' +
-        (showPower && pet.pet_power ? '<div class="pet-card-power">⚡ ' + esc(String(pet.pet_power)) + '</div>' : '') +
         (showEdited && pet.updated_at ? '<div class="pet-last-edited">✎ ' + fmtDateShort(pet.updated_at) + '</div>' : '') +
         '<div class="pet-variants">' +
           (oc ? '<span class="pv-badge oc">O/C</span>' : '') +
-          (pet.has_gold    && !oc ? '<span class="pv-badge gold">GOLD</span>'       : '') +
-          (pet.has_rainbow && !oc ? '<span class="pv-badge rainbow">RAINBOW</span>' : '') +
+          (!oc && pet.has_gold    ? '<span class="pv-badge gold">GOLD</span>'       : '') +
+          (!oc && pet.has_rainbow ? '<span class="pv-badge rainbow">RAINBOW</span>' : '') +
         '</div>' +
       '</div>';
     grid.appendChild(card);
@@ -351,8 +440,7 @@ function renderPetGrid() {
 }
 
 function onSearch() {
-  const input = document.getElementById('search-input');
-  const clear = document.getElementById('search-clear');
+  const input = document.getElementById('search-input'), clear = document.getElementById('search-clear');
   if (clear) clear.style.display = input?.value ? 'block' : 'none';
   clearTimeout(searchDebounce);
   searchDebounce = setTimeout(loadPets, 250);
@@ -371,27 +459,24 @@ function clearSearch() {
 function openPetModal(pet) {
   window._modalPet = pet;
   const nv = pet.normal_value, gv = pet.gold_value, rv = pet.rainbow_value;
-  const nvNum = parseInt(nv) || 0, gvNum = parseInt(gv) || 0, rvNum = parseInt(rv) || 0;
+  const nvNum = parseFloat(nv)||0, gvNum = parseFloat(gv)||0, rvNum = parseFloat(rv)||0;
   const goldMult = nvNum > 0 && pet.has_gold && !isOC(gv)    ? (gvNum/nvNum).toFixed(1) + 'x' : null;
   const rbMult   = nvNum > 0 && pet.has_rainbow && !isOC(rv) ? (rvNum/nvNum).toFixed(1) + 'x' : null;
   const faved    = getFavs().has(pet.id);
+  const demandHTML = pet.demand ? demandBadgeHTML(pet.demand, 'lg') : '';
 
   const imgHtml = pet.image_url
     ? '<img src="' + esc(pet.image_url) + '" alt="' + esc(pet.name) + '" onerror="this.style.display=\'none\'"/>'
     : '<span style="font-size:5rem;">🐾</span>';
 
-  const statCard = (cls, icon, label, val, mult, locked) => {
-    const oc = isOC(val);
-    return '<div class="stat-card ' + cls + (locked ? ' locked' : '') + '">' +
+  const statCard = (cls, icon, label, v, mult, locked) => {
+    const oc = isOC(v);
+    return '<div class="stat-card ' + cls + (locked?' locked':'') + '">' +
       '<span class="stat-icon">' + icon + '</span>' +
       '<span class="stat-variant-name">' + label + '</span>' +
-      (locked
-        ? '<span class="stat-value" style="font-size:.9rem;">O/C</span><span class="stat-unavail">no variant</span>'
-        : (oc
-            ? '<span class="stat-value oc-stat-val">👑 O/C</span><span class="stat-unit">owner\'s choice</span>'
-            : '<span class="stat-value">' + fmtVal(val) + '</span><span class="stat-unit">tokens</span>' + (mult ? '<span class="stat-multiplier">' + mult + '</span>' : '')
-          )
-      ) +
+      (locked ? '<span class="stat-value" style="font-size:.9rem;">N/A</span><span class="stat-unavail">no variant</span>'
+        : oc ? '<span class="stat-value oc-stat-val">👑 O/C</span><span class="stat-unit">owner\'s choice</span>'
+          : '<span class="stat-value">' + fmtVal(v) + '</span><span class="stat-unit">tokens</span>' + (mult ? '<span class="stat-multiplier">' + mult + '</span>' : '')) +
     '</div>';
   };
 
@@ -399,32 +484,110 @@ function openPetModal(pet) {
     '<button class="modal-close" onclick="closeModal()">✕</button>' +
     '<div class="pet-modal-img">' + imgHtml + '</div>' +
     '<div class="pet-modal-body">' +
-      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.35rem;">' +
+
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.3rem;">' +
         '<div class="pet-modal-name">' + esc(pet.name) + '</div>' +
-        '<button class="modal-fav-btn" onclick="toggleFav(\'' + esc(pet.id) + '\',event);this.textContent=window._modalPet&&getFavs().has(window._modalPet.id)?\'⭐ Saved\':\'☆ Save\';" style="flex-shrink:0;">' + (faved ? '⭐ Saved' : '☆ Save') + '</button>' +
+        '<button class="modal-fav-btn" id="modal-fav-toggle" onclick="toggleFavModal(\'' + esc(pet.id) + '\')">' + (faved ? '⭐ Saved' : '☆ Save') + '</button>' +
       '</div>' +
       '<div class="pet-modal-cat">' + esc(pet.category || 'Standard') + '</div>' +
 
-      '<div class="pet-modal-rate"><span class="rate-label">EXISTENCE RATE</span><span class="rate-value">' + esc(pet.existence_rate || 'Unknown') + '</span></div>' +
-      (pet.pet_power ? '<div class="pet-modal-rate" style="margin-bottom:.9rem;"><span class="rate-label">⚡ PET POWER</span><span class="rate-value" style="color:var(--gold);">' + esc(String(pet.pet_power)) + '</span></div>' : '') +
-      (pet.updated_at ? '<div class="pet-modal-rate" style="margin-bottom:1rem;"><span class="rate-label">✎ LAST EDITED</span><span class="rate-value" style="font-size:.78rem;">' + fmtDate(pet.updated_at) + '</span></div>' : '') +
+      // Info row: existence rate + demand side by side
+      '<div class="pet-modal-info-grid">' +
+        '<div class="pet-modal-rate"><span class="rate-label">EXISTENCE RATE</span><span class="rate-value">' + esc(pet.existence_rate || 'Unknown') + '</span></div>' +
+        (pet.demand ? '<div class="pet-modal-rate">' + demandHTML + '</div>' : '') +
+      '</div>' +
+
+      // Pet Power + last edited
+      '<div class="pet-modal-info-grid">' +
+        (pet.pet_power ? '<div class="pet-modal-rate"><span class="rate-label">⚡ PET POWER</span><span class="rate-value" style="color:var(--gold);">' + esc(String(pet.pet_power)) + '</span></div>' : '') +
+        (pet.updated_at ? '<div class="pet-modal-rate"><span class="rate-label">✎ LAST EDITED</span><span class="rate-value" style="font-size:.75rem;">' + fmtDate(pet.updated_at) + '</span></div>' : '') +
+      '</div>' +
 
       '<div class="pet-stats-section">' +
         '<div class="pet-stats-label-row">' +
           '<span class="pet-stats-label">Variant Values</span>' +
-          '<button class="copy-val-btn" onclick="copyToClipboard(\'' + fmtVal(nv) + (isOC(nv) ? '' : ' tokens') + '\')" title="Copy normal value">📋 Copy</button>' +
+          '<button class="copy-val-btn" onclick="copyToClipboard(\'' + fmtVal(nv) + (isOC(nv)?'':' tokens') + '\')">📋 Copy</button>' +
         '</div>' +
         '<div class="stats-grid">' +
-          statCard('s-normal', '🔵', 'NORMAL',  nv, null,    false) +
-          statCard('s-gold',   '⭐', 'GOLD',    gv, goldMult, !pet.has_gold) +
-          statCard('s-rainbow','🌈', 'RAINBOW', rv, rbMult,   !pet.has_rainbow) +
+          statCard('s-normal',  '🔵', 'NORMAL',  nv, null,    false) +
+          statCard('s-gold',    '⭐', 'GOLD',    gv, goldMult, !pet.has_gold) +
+          statCard('s-rainbow', '🌈', 'RAINBOW', rv, rbMult,   !pet.has_rainbow) +
         '</div>' +
       '</div>' +
 
       (pet.notes ? '<div class="pet-modal-notes">📝 ' + esc(pet.notes) + '</div>' : '') +
-      '<button class="modal-add-calc" onclick="addToCalcFromModal(window._modalPet)">➕ Add to Calculator</button>' +
+
+      // Action buttons
+      '<div class="modal-action-row">' +
+        '<button class="modal-add-calc" onclick="addToCalcFromModal(window._modalPet)">➕ Calculator</button>' +
+        '<button class="modal-chart-btn" onclick="toggleModalChart(\'' + esc(pet.id) + '\')">📈 Price History</button>' +
+      '</div>' +
+
+      // Chart section (hidden by default)
+      '<div id="modal-chart-section" style="display:none;margin-top:1rem;">' +
+        '<div id="modal-chart-content"><div class="chart-loading">Loading chart...</div></div>' +
+      '</div>' +
+
     '</div>'
   );
+}
+
+function toggleFavModal(id) {
+  const favs = getFavs();
+  if (favs.has(id)) favs.delete(id); else favs.add(id);
+  saveFavs(favs); updateFavCount();
+  const btn = document.getElementById('modal-fav-toggle');
+  if (btn) btn.textContent = favs.has(id) ? '⭐ Saved' : '☆ Save';
+  applyVariantFilter();
+}
+
+async function toggleModalChart(petId) {
+  const section = document.getElementById('modal-chart-section');
+  const content = document.getElementById('modal-chart-content');
+  const btn = document.querySelector('.modal-chart-btn');
+  if (!section) return;
+  if (section.style.display !== 'none') {
+    section.style.display = 'none';
+    if (btn) btn.textContent = '📈 Price History';
+    return;
+  }
+  section.style.display = 'block';
+  if (btn) btn.textContent = '📉 Hide Chart';
+  content.innerHTML = '<div class="chart-loading">Loading price history...</div>';
+  try {
+    const history = await apiFetch('GET', '/api/pets/' + encodeURIComponent(petId) + '/history');
+    if (!history.length) {
+      content.innerHTML = '<div class="chart-empty">No price history added yet.<br/><span style="font-size:.82rem;color:var(--text-subtle);">Admins can add chart data in the edit panel.</span></div>';
+      return;
+    }
+    const numericCount = history.filter(p => !isNaN(parseFloat(p.token_value))).length;
+    content.innerHTML =
+      '<div class="chart-header">' +
+        '<span class="chart-title">Price History <span class="chart-point-count">' + history.length + ' point' + (history.length!==1?'s':'') + '</span></span>' +
+        '<span class="chart-range">' + (history.length >= 2 ? getChartRange(history) : '') + '</span>' +
+      '</div>' +
+      (numericCount < 2 ? '<div class="chart-empty">Need at least 2 numeric points to draw the chart.</div>' : buildChartSVG(history)) +
+      '<div class="chart-points-list">' + history.map(p =>
+        '<div class="chart-point-row">' +
+          '<span class="cpr-date">' + new Date(p.recorded_at).toLocaleDateString([], {month:'short',day:'numeric',year:'numeric'}) + '</span>' +
+          '<span class="cpr-val' + (isOC(p.token_value)?' oc-text':'') + '">' + (isOC(p.token_value)?'👑 ':'') + fmtVal(p.token_value) + (isOC(p.token_value)?'':' T') + '</span>' +
+          (p.label ? '<span class="cpr-label">' + esc(p.label) + '</span>' : '') +
+        '</div>'
+      ).join('') +
+      '</div>';
+  } catch (e) {
+    content.innerHTML = '<div class="chart-empty" style="color:var(--danger);">Failed to load: ' + esc(e.message) + '</div>';
+  }
+}
+
+function getChartRange(history) {
+  const dates = history.map(p => new Date(p.recorded_at)).sort((a,b) => a-b);
+  const first = dates[0], last = dates[dates.length-1];
+  const spanDays = (last - first) / 86400000;
+  if (spanDays < 1) return 'Past 24h';
+  if (spanDays < 7) return 'Past ' + Math.ceil(spanDays) + ' days';
+  if (spanDays < 60) return Math.ceil(spanDays/7) + ' weeks';
+  return Math.ceil(spanDays/30) + ' months';
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -449,7 +612,7 @@ function addCalcItem(side, petId) {
   if (!pet) return;
   calcItems[side].push({ isManual:false, pet, variant:'normal', qty:1 });
   document.getElementById('calc-search-' + side).value = '';
-  document.getElementById('calc-drop-'   + side).style.display = 'none';
+  document.getElementById('calc-drop-' + side).style.display = 'none';
   renderCalc();
 }
 function addManualTokens(side) {
@@ -466,19 +629,18 @@ function addManualTokens(side) {
 function addToCalcFromModal(pet) {
   closeModal();
   calcItems.your.push({ isManual:false, pet, variant:'normal', qty:1 });
-  showPage('calculator');
-  renderCalc();
+  showPage('calculator'); renderCalc();
 }
 function removeCalcItem(side, i) { calcItems[side].splice(i,1); renderCalc(); }
 function changeVariant(side, i, v) { calcItems[side][i].variant = v; renderCalc(); }
-function changeQty(side, i, qty) { calcItems[side][i].qty = Math.max(1, parseInt(qty)||1); renderCalc(); }
+function changeQty(side, i, qty)   { calcItems[side][i].qty = Math.max(1, parseInt(qty)||1); renderCalc(); }
 function clearCalc() { calcItems = { your:[], their:[] }; renderCalc(); }
 
 function getItemValue(item) {
   if (item.isManual) return (parseInt(item.tokens)||0) * (item.qty||1);
   const raw = item.variant === 'gold' ? item.pet.gold_value : item.variant === 'rainbow' ? item.pet.rainbow_value : item.pet.normal_value;
-  if (isOC(raw)) return 0; // O/C can't be numerically compared
-  return (parseInt(raw)||0) * item.qty;
+  if (isOC(raw)) return 0;
+  return (parseFloat(raw)||0) * item.qty;
 }
 
 function renderCalc() {
@@ -525,12 +687,11 @@ function renderCalc() {
     if (totalEl) totalEl.textContent = fmtNum(total) + ' tokens';
   });
 
-  const yt = calcItems.your.reduce((s,i)  => s + getItemValue(i), 0);
+  const yt = calcItems.your.reduce((s,i) => s + getItemValue(i), 0);
   const tt = calcItems.their.reduce((s,i) => s + getItemValue(i), 0);
   const r  = document.getElementById('calc-result');
   if (!r) return;
 
-  // Check if any O/C items exist
   const hasOC = [...calcItems.your, ...calcItems.their].some(item => {
     if (item.isManual) return false;
     const raw = item.variant === 'gold' ? item.pet.gold_value : item.variant === 'rainbow' ? item.pet.rainbow_value : item.pet.normal_value;
@@ -546,8 +707,7 @@ function renderCalc() {
     r.textContent = '✔ Fair Trade';
     r.style.background = 'rgba(22,128,60,0.1)'; r.style.color = 'var(--success)'; r.style.borderColor = 'rgba(22,128,60,0.3)';
   } else {
-    const diff = Math.abs(yt - tt);
-    const who  = yt > tt ? 'You overpay' : 'They overpay';
+    const diff = Math.abs(yt - tt), who = yt > tt ? 'You overpay' : 'They overpay';
     r.innerHTML = who + '<br><span style="font-size:.75rem;">' + fmtNum(diff) + ' tokens</span>';
     r.style.background  = yt > tt ? 'rgba(192,57,43,0.1)' : 'rgba(184,111,10,0.1)';
     r.style.color       = yt > tt ? 'var(--danger)' : 'var(--gold)';
@@ -577,14 +737,12 @@ async function loadCredits() {
     data.forEach(c => {
       const initials = c.name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
       const card = document.createElement('div'); card.className = 'credit-card';
-      card.innerHTML =
-        '<div class="credit-avatar">' + esc(initials) + '</div>' +
-        '<div class="credit-name">' + esc(c.name) + '</div>' +
-        (c.role    ? '<div class="credit-role">' + esc(c.role) + '</div>'       : '') +
+      card.innerHTML = '<div class="credit-avatar">' + esc(initials) + '</div><div class="credit-name">' + esc(c.name) + '</div>' +
+        (c.role    ? '<div class="credit-role">'   + esc(c.role)    + '</div>' : '') +
         (c.discord ? '<div class="credit-discord">' + esc(c.discord) + '</div>' : '');
       grid.appendChild(card);
     });
-  } catch (e) { grid.innerHTML = '<div class="grid-loading">Failed to load: ' + esc(e.message) + '</div>'; }
+  } catch (e) { grid.innerHTML = '<div class="grid-loading">Failed: ' + esc(e.message) + '</div>'; }
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -592,14 +750,10 @@ async function loadCredits() {
 // ══════════════════════════════════════════════════════════════════
 function initAdmin() {
   if (adminSession) showAdminDash();
-  else {
-    document.getElementById('admin-login-view').style.display = 'block';
-    document.getElementById('admin-dash-view').style.display  = 'none';
-  }
+  else { document.getElementById('admin-login-view').style.display = 'block'; document.getElementById('admin-dash-view').style.display = 'none'; }
 }
 async function adminLogin() {
-  const btn = document.getElementById('adm-login-btn');
-  const err = document.getElementById('adm-err');
+  const btn = document.getElementById('adm-login-btn'), err = document.getElementById('adm-err');
   const user = val('adm-user'), pw = val('adm-pass');
   err.style.display = 'none';
   if (!user || !pw) { err.textContent = 'Enter username and password'; err.style.display = 'block'; return; }
@@ -624,8 +778,7 @@ function showAdminDash() {
   document.getElementById('admin-login-view').style.display = 'none';
   document.getElementById('admin-dash-view').style.display  = 'block';
   setEl('adm-welcome', 'Welcome back, ' + adminSession.display_name + ' · ' + adminSession.role);
-  loadAdminPets();
-  loadAdminLog();
+  loadAdminPets(); loadAdminLog();
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -643,9 +796,9 @@ async function loadAdminLog() {
       const row = document.createElement('div'); row.className = 'log-row';
       const dt = new Date(entry.created_at);
       const timeStr = dt.toLocaleDateString([], { month:'short', day:'numeric' }) + ' ' + dt.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
-      const iconMap = { ADD_PET:'➕', EDIT_PET:'✏️', DELETE_PET:'🗑️' };
+      const iconMap = { ADD_PET:'➕', EDIT_PET:'✏️', DELETE_PET:'🗑️', ADD_HISTORY:'📊', DELETE_HISTORY:'🗑️' };
       const icon = iconMap[entry.action] || '📋';
-      const badgeClass = entry.action === 'ADD_PET' ? 'log-badge-add' : entry.action === 'EDIT_PET' ? 'log-badge-edit' : entry.action === 'DELETE_PET' ? 'log-badge-del' : 'log-badge-other';
+      const badgeClass = entry.action === 'ADD_PET' ? 'log-badge-add' : entry.action === 'EDIT_PET' ? 'log-badge-edit' : (entry.action === 'DELETE_PET' || entry.action === 'DELETE_HISTORY') ? 'log-badge-del' : entry.action === 'ADD_HISTORY' ? 'log-badge-history' : 'log-badge-other';
       row.innerHTML =
         '<span class="log-icon">' + icon + '</span>' +
         '<div class="log-body">' +
@@ -658,9 +811,7 @@ async function loadAdminLog() {
         '</div>';
       list.appendChild(row);
     });
-  } catch (e) {
-    list.innerHTML = '<div class="log-empty" style="color:var(--danger);">Could not load log: ' + esc(e.message) + '</div>';
-  }
+  } catch (e) { list.innerHTML = '<div class="log-empty" style="color:var(--danger);">Could not load log: ' + esc(e.message) + '</div>'; }
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -685,30 +836,108 @@ function renderAdminPets(pets) {
   if (!pets.length) { list.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text-muted);">No pets yet — add one!</div>'; return; }
   list.innerHTML = '';
   pets.forEach(pet => {
-    const imgContent = pet.image_url
-      ? '<img src="' + esc(pet.image_url) + '" alt="" onerror="this.parentElement.textContent=\'🐾\'"/>'
-      : '🐾';
+    const imgContent = pet.image_url ? '<img src="' + esc(pet.image_url) + '" alt="" onerror="this.parentElement.textContent=\'🐾\'"/>' : '🐾';
+    const demandCfg = pet.demand ? (DEMAND_CONFIG[pet.demand] || null) : null;
     const row = document.createElement('div'); row.className = 'admin-pet-row';
     row.innerHTML =
       '<div class="apr-img">' + imgContent + '</div>' +
       '<div class="apr-info">' +
-        '<div class="apr-name">' + esc(pet.name) + (isOC(pet.normal_value) ? ' <span class="oc-mini-badge">O/C</span>' : '') + '</div>' +
-        '<div class="apr-meta">' + esc(pet.existence_rate||'Unknown') + ' · ' + esc(pet.category||'standard') +
-          (pet.pet_power ? ' · ⚡' + esc(String(pet.pet_power)) : '') +
-          (pet.updated_at ? ' · ✎ ' + fmtDateShort(pet.updated_at) : '') +
-        '</div>' +
+        '<div class="apr-name">' + esc(pet.name) + (isOC(pet.normal_value)?' <span class="oc-mini-badge">O/C</span>':'') + (demandCfg?' <span class="demand-mini-badge" style="color:'+demandCfg.color+';background:'+demandCfg.bg+';border-color:'+demandCfg.border+';">'+demandCfg.icon+' '+esc(pet.demand)+'</span>':'') + '</div>' +
+        '<div class="apr-meta">' + esc(pet.existence_rate||'Unknown') + ' · ' + esc(pet.category||'standard') + (pet.pet_power?' · ⚡'+esc(String(pet.pet_power)):'') + (pet.updated_at?' · ✎ '+fmtDateShort(pet.updated_at):'') + '</div>' +
       '</div>' +
       '<div class="apr-values">' +
-        '<span class="apr-val n">' + fmtVal(pet.normal_value)  + '</span>' +
+        '<span class="apr-val n">' + fmtVal(pet.normal_value) + '</span>' +
         (pet.has_gold    ? '<span class="apr-val g">G:' + fmtVal(pet.gold_value)    + '</span>' : '') +
         (pet.has_rainbow ? '<span class="apr-val r">R:' + fmtVal(pet.rainbow_value) + '</span>' : '') +
       '</div>' +
       '<div class="apr-btns">' +
         '<button class="btn-sm" onclick="openEditPetModal(\'' + esc(pet.id) + '\')">✏ Edit</button>' +
+        '<button class="btn-sm chart-btn" onclick="openAdminChartModal(\'' + esc(pet.id) + '\',\'' + esc(pet.name) + '\')">📈</button>' +
         '<button class="btn-sm danger" onclick="deletePet(\'' + esc(pet.id) + '\',\'' + esc(pet.name) + '\')">🗑</button>' +
       '</div>';
     list.appendChild(row);
   });
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  ADMIN CHART MODAL
+// ══════════════════════════════════════════════════════════════════
+async function openAdminChartModal(petId, petName) {
+  showModal(
+    '<button class="modal-close" onclick="closeModal()">✕</button>' +
+    '<div class="mform">' +
+      '<h2>📈 Price History</h2>' +
+      '<p class="mform-sub" style="font-family:\'Share Tech Mono\',monospace;color:var(--accent);">' + esc(petName) + '</p>' +
+      '<div id="acm-chart-area"><div class="chart-loading">Loading...</div></div>' +
+      '<div class="acm-add-form">' +
+        '<div class="acm-add-title">Add Data Point</div>' +
+        '<div class="acm-add-row">' +
+          '<div class="acm-field"><label>Date &amp; Time</label><input type="datetime-local" id="acm-date" value="' + todayISO() + '"/></div>' +
+          '<div class="acm-field"><label>Value</label><input type="text" id="acm-val" placeholder="e.g. 50000 or O/C"/></div>' +
+          '<div class="acm-field"><label>Label (optional)</label><input type="text" id="acm-label" placeholder="e.g. Patch update"/></div>' +
+        '</div>' +
+        '<button class="btn-primary" style="width:100%;margin-top:.6rem;" onclick="adminAddHistoryPoint(\'' + esc(petId) + '\')">➕ Add Point</button>' +
+      '</div>' +
+    '</div>'
+  );
+  await refreshAdminChartArea(petId);
+}
+
+async function refreshAdminChartArea(petId) {
+  const area = document.getElementById('acm-chart-area');
+  if (!area) return;
+  try {
+    const history = await apiFetch('GET', '/api/pets/' + encodeURIComponent(petId) + '/history');
+    if (!history.length) {
+      area.innerHTML = '<div class="chart-empty" style="margin-bottom:1rem;">No data points yet. Add one below.</div>';
+      return;
+    }
+    const numericCount = history.filter(p => !isNaN(parseFloat(p.token_value))).length;
+    let html = numericCount >= 2 ? buildChartSVG(history) : '<div class="chart-empty" style="margin-bottom:.5rem;">Need 2+ numeric points to draw chart.</div>';
+    html += '<div class="acm-points-list">';
+    history.slice().sort((a,b) => new Date(b.recorded_at) - new Date(a.recorded_at)).forEach(p => {
+      html += '<div class="acm-point-row">' +
+        '<span class="cpr-date">' + new Date(p.recorded_at).toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'}) + ' ' + new Date(p.recorded_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) + '</span>' +
+        '<span class="cpr-val' + (isOC(p.token_value)?' oc-text':'') + '">' + (isOC(p.token_value)?'👑 ':'') + fmtVal(p.token_value) + (isOC(p.token_value)?'':' T') + '</span>' +
+        (p.label ? '<span class="cpr-label">' + esc(p.label) + '</span>' : '<span></span>') +
+        '<span class="cpr-by">by ' + esc(p.created_by||'?') + '</span>' +
+        '<button class="btn-sm danger" onclick="adminDeleteHistoryPoint(' + p.id + ',\'' + esc(petId) + '\')">✕</button>' +
+      '</div>';
+    });
+    html += '</div>';
+    area.innerHTML = html;
+  } catch (e) {
+    area.innerHTML = '<div class="chart-empty" style="color:var(--danger);">Failed: ' + esc(e.message) + '</div>';
+  }
+}
+
+async function adminAddHistoryPoint(petId) {
+  const dateEl  = document.getElementById('acm-date');
+  const valEl   = document.getElementById('acm-val');
+  const labelEl = document.getElementById('acm-label');
+  const dateVal = dateEl?.value?.trim(), tokenVal = valEl?.value?.trim(), labelVal = labelEl?.value?.trim();
+  if (!dateVal)  { toast('⚠ Pick a date'); return; }
+  if (!tokenVal) { toast('⚠ Enter a value'); return; }
+  try {
+    await apiFetch('POST', '/api/admin/pets/' + encodeURIComponent(petId) + '/history',
+      { token_value: tokenVal, recorded_at: new Date(dateVal).toISOString(), label: labelVal },
+      { 'x-admin-token': adminSession.token });
+    if (valEl)   valEl.value   = '';
+    if (labelEl) labelEl.value = '';
+    toast('✔ Point added!');
+    await refreshAdminChartArea(petId);
+    loadAdminLog();
+  } catch (e) { toast('⚠ ' + e.message); }
+}
+
+async function adminDeleteHistoryPoint(pointId, petId) {
+  if (!confirm('Delete this data point?')) return;
+  try {
+    await apiFetch('DELETE', '/api/admin/history/' + pointId, null, { 'x-admin-token': adminSession.token });
+    toast('Point deleted');
+    await refreshAdminChartArea(petId);
+    loadAdminLog();
+  } catch (e) { toast('⚠ ' + e.message); }
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -732,19 +961,22 @@ function openEditPetModal(petId) {
     '<div class="mform"><h2>Edit Pet</h2><p class="mform-sub" style="font-family:\'Share Tech Mono\',monospace;color:var(--accent);">' + esc(pet.name) + '</p>' +
     petFormHTML(pet) +
     '<div id="pet-form-err" class="form-error" style="display:none;"></div>' +
-    '<div class="mform-actions"><button class="btn-outline" onclick="closeModal()">Cancel</button><button class="btn-primary" onclick="submitEditPet(\'' + esc(petId) + '\')">Save Changes</button></div>' +
+    '<div class="mform-actions">' +
+      '<button class="btn-outline" onclick="closeModal()">Cancel</button>' +
+      '<button class="btn-sm chart-btn" onclick="closeModal();openAdminChartModal(\'' + esc(petId) + '\',\'' + esc(pet.name) + '\')" style="flex:1;padding:.68rem;">📈 Chart Data</button>' +
+      '<button class="btn-primary" onclick="submitEditPet(\'' + esc(petId) + '\')" style="flex:2;">Save Changes</button>' +
+    '</div>' +
     '</div>'
   );
 }
 function petFormHTML(pet) {
   const p = pet || {};
+  const demandOpts = ['', 'Very High', 'High', 'Medium', 'Low', 'Very Low'];
+  const demandSelectOpts = demandOpts.map(d => '<option value="' + esc(d) + '"' + (p.demand === d ? ' selected' : '') + '>' + (d || '— Not set —') + '</option>').join('');
   return '<div class="mform-grid">' +
     '<div class="field-group"><label>Pet Name *</label><input id="pf-name" type="text" value="' + esc(p.name||'') + '" placeholder="e.g. Blossom Ninja"/></div>' +
     '<div class="field-group"><label>Category</label><select id="pf-cat">' +
-      '<option value="standard"'  + (p.category==='standard'  ?' selected':'') + '>Standard</option>' +
-      '<option value="limited"'   + (p.category==='limited'   ?' selected':'') + '>Limited</option>' +
-      '<option value="exclusive"' + (p.category==='exclusive' ?' selected':'') + '>Exclusive</option>' +
-      '<option value="event"'     + (p.category==='event'     ?' selected':'') + '>Event</option>' +
+      ['standard','limited','exclusive','event'].map(c => '<option value="' + c + '"' + (p.category===c?' selected':'') + '>' + c.charAt(0).toUpperCase()+c.slice(1) + '</option>').join('') +
     '</select></div>' +
     '<div class="field-group" style="grid-column:1/-1;"><label>Image URL</label><input id="pf-img" type="text" value="' + esc(p.image_url||'') + '" placeholder="https://..."/></div>' +
     '<div class="field-group" style="grid-column:1/-1;"><label>Existence Rate</label><input id="pf-rate" type="text" value="' + esc(p.existence_rate||'') + '" placeholder="e.g. 1 in 10,000 or 0.01%"/></div>' +
@@ -752,11 +984,12 @@ function petFormHTML(pet) {
     '<div class="field-group"><label>Gold Value</label><input id="pf-gval" type="text" value="' + esc(String(p.gold_value||'')) + '" placeholder="e.g. 10000 or O/C"/></div>' +
     '<div class="field-group"><label>Rainbow Value</label><input id="pf-rval" type="text" value="' + esc(String(p.rainbow_value||'')) + '" placeholder="e.g. 20000 or O/C"/></div>' +
     '<div class="field-group"><label>Pet Power ⚡</label><input id="pf-power" type="text" value="' + esc(p.pet_power||'') + '" placeholder="e.g. 1500 or 145% or High"/></div>' +
+    '<div class="field-group"><label>Demand 📊</label><select id="pf-demand">' + demandSelectOpts + '</select></div>' +
     '<div class="field-group" style="display:flex;gap:1.5rem;align-items:center;padding-top:.5rem;">' +
-      '<label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.88rem;text-transform:none;letter-spacing:0;"><input id="pf-hasgold" type="checkbox"' + (p.has_gold!==false?' checked':'') + ' style="width:auto;margin:0;accent-color:var(--accent);"/> Has Gold version</label>' +
-      '<label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.88rem;text-transform:none;letter-spacing:0;"><input id="pf-hasrb" type="checkbox"' + (p.has_rainbow!==false?' checked':'') + ' style="width:auto;margin:0;accent-color:var(--accent);"/> Has Rainbow version</label>' +
+      '<label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.88rem;text-transform:none;letter-spacing:0;"><input id="pf-hasgold" type="checkbox"' + (p.has_gold!==false?' checked':'') + ' style="width:auto;margin:0;accent-color:var(--accent);"/> Has Gold</label>' +
+      '<label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.88rem;text-transform:none;letter-spacing:0;"><input id="pf-hasrb" type="checkbox"' + (p.has_rainbow!==false?' checked':'') + ' style="width:auto;margin:0;accent-color:var(--accent);"/> Has Rainbow</label>' +
     '</div>' +
-    '<div class="field-group" style="grid-column:1/-1;"><label>Notes (optional)</label><textarea id="pf-notes" placeholder="Any extra info about this pet...">' + esc(p.notes||'') + '</textarea></div>' +
+    '<div class="field-group" style="grid-column:1/-1;"><label>Notes (optional)</label><textarea id="pf-notes" placeholder="Any extra info...">' + esc(p.notes||'') + '</textarea></div>' +
   '</div>';
 }
 function getPetFormData() {
@@ -768,15 +1001,15 @@ function getPetFormData() {
     normal_value:   document.getElementById('pf-nval')?.value?.trim() || '0',
     gold_value:     document.getElementById('pf-gval')?.value?.trim() || '0',
     rainbow_value:  document.getElementById('pf-rval')?.value?.trim() || '0',
-    pet_power:      document.getElementById('pf-power')?.value?.trim() || '',
+    pet_power:      document.getElementById('pf-power')?.value?.trim()  || '',
+    demand:         document.getElementById('pf-demand')?.value?.trim() || '',
     has_gold:       document.getElementById('pf-hasgold')?.checked !== false,
     has_rainbow:    document.getElementById('pf-hasrb')?.checked   !== false,
     notes:          document.getElementById('pf-notes')?.value?.trim() || '',
   };
 }
 async function submitAddPet() {
-  const err = document.getElementById('pet-form-err');
-  const data = getPetFormData();
+  const err = document.getElementById('pet-form-err'), data = getPetFormData();
   err.style.display = 'none';
   if (!data.name) { err.textContent = 'Pet name is required'; err.style.display = 'block'; return; }
   try {
@@ -785,8 +1018,7 @@ async function submitAddPet() {
   } catch (e) { err.textContent = e.message; err.style.display = 'block'; }
 }
 async function submitEditPet(petId) {
-  const err = document.getElementById('pet-form-err');
-  const data = getPetFormData();
+  const err = document.getElementById('pet-form-err'), data = getPetFormData();
   err.style.display = 'none';
   if (!data.name) { err.textContent = 'Pet name is required'; err.style.display = 'block'; return; }
   try {
@@ -806,14 +1038,8 @@ async function deletePet(petId, name) {
 //  OWNER PANEL
 // ══════════════════════════════════════════════════════════════════
 function initOwner() {
-  if (ownerAuthed) {
-    document.getElementById('owner-login-view').style.display = 'none';
-    document.getElementById('owner-dash-view').style.display  = 'block';
-    loadOwnerData();
-  } else {
-    document.getElementById('owner-login-view').style.display = 'block';
-    document.getElementById('owner-dash-view').style.display  = 'none';
-  }
+  if (ownerAuthed) { document.getElementById('owner-login-view').style.display='none'; document.getElementById('owner-dash-view').style.display='block'; loadOwnerData(); }
+  else { document.getElementById('owner-login-view').style.display='block'; document.getElementById('owner-dash-view').style.display='none'; }
 }
 async function ownerLogin() {
   const pw = val('own-pass'), err = document.getElementById('own-err');
@@ -825,10 +1051,7 @@ async function ownerLogin() {
     document.getElementById('owner-login-view').style.display = 'none';
     document.getElementById('owner-dash-view').style.display  = 'block';
     loadOwnerData();
-  } catch (e) {
-    err.textContent = e.message === 'Unauthorized' ? 'Wrong password' : e.message;
-    err.style.display = 'block';
-  }
+  } catch (e) { err.textContent = e.message === 'Unauthorized' ? 'Wrong password' : e.message; err.style.display = 'block'; }
 }
 function ownerLogout() {
   ownerAuthed = false; ownerPw = '';
@@ -841,8 +1064,7 @@ async function loadOwnerData() {
   const h = { 'x-owner-password': ownerPw };
   try {
     const admins = await apiFetch('GET', '/api/owner/admins', null, h);
-    const list = document.getElementById('owner-admins-list');
-    if (!list) return;
+    const list = document.getElementById('owner-admins-list'); if (!list) return;
     list.innerHTML = '';
     if (!admins.length) { list.innerHTML = '<div style="padding:.6rem 1rem;color:var(--text-muted);font-size:.88rem;">No admins yet</div>'; }
     else admins.forEach(a => {
@@ -853,21 +1075,19 @@ async function loadOwnerData() {
   } catch {}
   try {
     const credits = await apiFetch('GET', '/api/owner/credits', null, h);
-    const list = document.getElementById('owner-credits-list');
-    if (!list) return;
+    const list = document.getElementById('owner-credits-list'); if (!list) return;
     list.innerHTML = '';
     if (!credits.length) { list.innerHTML = '<div style="padding:.6rem 1rem;color:var(--text-muted);font-size:.88rem;">No credits yet</div>'; }
     else credits.forEach(c => {
       const row = document.createElement('div'); row.className = 'owner-list-row';
-      row.innerHTML = '<span class="olr-name">' + esc(c.name) + '</span>' + (c.role?'<span class="olr-role">' + esc(c.role) + '</span>':'') + '<span style="color:var(--text-muted);font-size:.8rem;flex:1;">' + esc(c.discord||'') + '</span><button class="btn-sm danger" onclick="ownerDeleteCredit(' + c.id + ')">Remove</button>';
+      row.innerHTML = '<span class="olr-name">' + esc(c.name) + '</span>' + (c.role?'<span class="olr-role">'+esc(c.role)+'</span>':'') + '<span style="color:var(--text-muted);font-size:.8rem;flex:1;">' + esc(c.discord||'') + '</span><button class="btn-sm danger" onclick="ownerDeleteCredit('+c.id+')">Remove</button>';
       list.appendChild(row);
     });
   } catch {}
   try {
     const pets = await apiFetch('GET', '/api/owner/pets', null, h);
     setEl('owner-pet-count', pets.length + ' pets');
-    const list = document.getElementById('owner-pets-list');
-    if (!list) return;
+    const list = document.getElementById('owner-pets-list'); if (!list) return;
     list.innerHTML = '';
     pets.forEach(p => {
       const row = document.createElement('div'); row.className = 'owner-list-row';
@@ -914,18 +1134,11 @@ async function ownerDeletePet(id, name) {
   catch (e) { toast('⚠ ' + e.message); }
 }
 
-// ══════════════════════════════════════════════════════════════════
-//  HIDDEN OWNER BUTTON
-// ══════════════════════════════════════════════════════════════════
+// Hidden owner button
 let versionClicks = 0;
 document.getElementById('nav-version')?.addEventListener('click', () => {
   versionClicks++;
-  if (versionClicks >= 3) {
-    versionClicks = 0;
-    const btn = document.getElementById('owner-secret-btn');
-    if (btn) btn.style.display = 'inline-flex';
-    toast('🔓 Owner access revealed');
-  }
+  if (versionClicks >= 3) { versionClicks = 0; const btn = document.getElementById('owner-secret-btn'); if (btn) btn.style.display = 'inline-flex'; toast('🔓 Owner access revealed'); }
   setTimeout(() => versionClicks = 0, 900);
 });
 
@@ -933,20 +1146,14 @@ document.getElementById('nav-version')?.addEventListener('click', () => {
 //  INIT
 // ══════════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  // Always dark mode
   document.documentElement.setAttribute('data-theme', 'dark');
-
   loadSettings();
   applyDensity(settings.gridDensity);
   applyAccentColor(settings.accentColor);
-
   const sf = document.getElementById('sort-filter');
   if (sf) sf.value = settings.sortOrder;
   if (settings.defaultVariant && settings.defaultVariant !== 'all') setVariantFilter(settings.defaultVariant);
-
   document.getElementById('adm-pass')?.addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
   document.getElementById('own-pass')?.addEventListener('keydown', e => { if (e.key === 'Enter') ownerLogin(); });
-
-  checkStatus();
-  loadPets();
+  checkStatus(); loadPets();
 });
