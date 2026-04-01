@@ -98,6 +98,15 @@ app.get('/api/pets/:id', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Public Price History ──────────────────────────────────────────
+app.get('/api/pets/:id/history', async (req, res) => {
+  try {
+    const rows = await sbRequest('GET', 'pet_price_history', null,
+      `?pet_id=eq.${encodeURIComponent(req.params.id)}&order=recorded_at.asc&select=*`);
+    res.json(rows || []);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 // ── Public Credits ────────────────────────────────────────────────
 app.get('/api/credits', async (req, res) => {
   try { res.json(await sbRequest('GET', 'credits', null, '?select=*&order=order_num.asc') || []); }
@@ -121,7 +130,7 @@ app.get('/api/admin/me', authAdmin, (req, res) => res.json({ success: true, admi
 // ── Admin Pets ────────────────────────────────────────────────────
 app.post('/api/admin/pets', authAdmin, async (req, res) => {
   try {
-    const { name, category, image_url, existence_rate, normal_value, gold_value, rainbow_value, has_gold, has_rainbow, pet_power, notes } = req.body;
+    const { name, category, image_url, existence_rate, normal_value, gold_value, rainbow_value, has_gold, has_rainbow, pet_power, demand, notes } = req.body;
     if (!name) return res.status(400).json({ error: 'Name required' });
     const id  = name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'') + '_' + Date.now();
     const now = new Date().toISOString();
@@ -134,6 +143,7 @@ app.post('/api/admin/pets', authAdmin, async (req, res) => {
       gold_value:     gold_value    ? String(gold_value).trim()    : '0',
       rainbow_value:  rainbow_value ? String(rainbow_value).trim() : '0',
       pet_power:      pet_power     ? String(pet_power).trim()     : '',
+      demand:         demand        ? String(demand).trim()        : '',
       has_gold:    has_gold    !== false,
       has_rainbow: has_rainbow !== false,
       notes:       notes || '',
@@ -142,14 +152,14 @@ app.post('/api/admin/pets', authAdmin, async (req, res) => {
     };
     await sbRequest('POST', 'pets', pet, '');
     await writeLog(req.admin.username, 'ADD_PET',
-      `Added "${pet.name}" (${pet.category}) — Normal: ${pet.normal_value}, Gold: ${pet.gold_value}, Rainbow: ${pet.rainbow_value}${pet.pet_power ? ', Power: ' + pet.pet_power : ''}`);
+      `Added "${pet.name}" (${pet.category}) — Normal: ${pet.normal_value}, Gold: ${pet.gold_value}, Rainbow: ${pet.rainbow_value}${pet.pet_power ? ', Power: ' + pet.pet_power : ''}${pet.demand ? ', Demand: ' + pet.demand : ''}`);
     res.json({ success: true, pet });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.put('/api/admin/pets/:id', authAdmin, async (req, res) => {
   try {
-    const { name, category, image_url, existence_rate, normal_value, gold_value, rainbow_value, has_gold, has_rainbow, pet_power, notes } = req.body;
+    const { name, category, image_url, existence_rate, normal_value, gold_value, rainbow_value, has_gold, has_rainbow, pet_power, demand, notes } = req.body;
     const u = { updated_at: new Date().toISOString() };
     if (name           !== undefined) u.name           = name.trim();
     if (category       !== undefined) u.category       = category;
@@ -159,6 +169,7 @@ app.put('/api/admin/pets/:id', authAdmin, async (req, res) => {
     if (gold_value     !== undefined) u.gold_value     = gold_value    ? String(gold_value).trim()    : '0';
     if (rainbow_value  !== undefined) u.rainbow_value  = rainbow_value ? String(rainbow_value).trim() : '0';
     if (pet_power      !== undefined) u.pet_power      = pet_power     ? String(pet_power).trim()     : '';
+    if (demand         !== undefined) u.demand         = demand        ? String(demand).trim()        : '';
     if (has_gold       !== undefined) u.has_gold       = has_gold;
     if (has_rainbow    !== undefined) u.has_rainbow    = has_rainbow;
     if (notes          !== undefined) u.notes          = notes;
@@ -174,7 +185,37 @@ app.delete('/api/admin/pets/:id', authAdmin, async (req, res) => {
     let petName = req.params.id;
     try { const r = await sbRequest('GET', 'pets', null, `?id=eq.${encodeURIComponent(req.params.id)}&select=name`); if (r?.[0]) petName = r[0].name; } catch {}
     await sbRequest('DELETE', 'pets', null, `?id=eq.${encodeURIComponent(req.params.id)}`);
+    // Also delete price history
+    try { await sbRequest('DELETE', 'pet_price_history', null, `?pet_id=eq.${encodeURIComponent(req.params.id)}`); } catch {}
     await writeLog(req.admin.username, 'DELETE_PET', `Deleted pet "${petName}"`);
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── Admin Price History ───────────────────────────────────────────
+app.post('/api/admin/pets/:id/history', authAdmin, async (req, res) => {
+  try {
+    const { token_value, recorded_at, label } = req.body;
+    if (!token_value) return res.status(400).json({ error: 'token_value required' });
+    if (!recorded_at) return res.status(400).json({ error: 'recorded_at required' });
+    const point = {
+      pet_id:      req.params.id,
+      token_value: String(token_value).trim(),
+      recorded_at: new Date(recorded_at).toISOString(),
+      label:       label ? String(label).trim() : '',
+      created_by:  req.admin.username,
+      created_at:  new Date().toISOString(),
+    };
+    const result = await sbRequest('POST', 'pet_price_history', point, '');
+    await writeLog(req.admin.username, 'ADD_HISTORY', `Added price point for pet "${req.params.id}": ${token_value} on ${recorded_at}`);
+    res.json({ success: true, point: Array.isArray(result) ? result[0] : result });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.delete('/api/admin/history/:id', authAdmin, async (req, res) => {
+  try {
+    await sbRequest('DELETE', 'pet_price_history', null, `?id=eq.${encodeURIComponent(req.params.id)}`);
+    await writeLog(req.admin.username, 'DELETE_HISTORY', `Deleted price history point ID ${req.params.id}`);
     res.json({ success: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -231,7 +272,11 @@ app.get('/api/owner/pets', authOwner, async (req, res) => {
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 app.delete('/api/owner/pets/:id', authOwner, async (req, res) => {
-  try { await sbRequest('DELETE', 'pets', null, `?id=eq.${encodeURIComponent(req.params.id)}`); res.json({ success: true }); }
+  try {
+    await sbRequest('DELETE', 'pets', null, `?id=eq.${encodeURIComponent(req.params.id)}`);
+    try { await sbRequest('DELETE', 'pet_price_history', null, `?pet_id=eq.${encodeURIComponent(req.params.id)}`); } catch {}
+    res.json({ success: true });
+  }
   catch (e) { res.status(500).json({ error: e.message }); }
 });
 
