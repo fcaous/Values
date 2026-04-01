@@ -58,7 +58,6 @@
       <button class="search-clear" id="search-clear" onclick="clearSearch()" style="display:none;">✕</button>
     </div>
   </div>
-
   <div class="filter-row">
     <button class="ftab active" id="ft-all"     onclick="setVariantFilter('all')">All</button>
     <button class="ftab gold"   id="ft-gold"    onclick="setVariantFilter('gold')">⭐ Gold</button>
@@ -82,10 +81,7 @@
       <span class="result-count" id="result-count"></span>
     </div>
   </div>
-
-  <div class="pet-grid" id="pet-grid">
-    <div class="grid-loading">Loading pets...</div>
-  </div>
+  <div class="pet-grid" id="pet-grid"><div class="grid-loading">Loading pets...</div></div>
 </div>
 
 <!-- CALCULATOR -->
@@ -93,14 +89,12 @@
   <div class="calc-wrap">
     <div class="page-header">
       <h1>Trade <span>Calculator</span></h1>
-      <p>Search pets or type a token amount manually — O/C pets are flagged automatically</p>
+      <p>Search pets or add token amounts manually — O/C pets are flagged automatically</p>
     </div>
     <div class="calc-grid">
       <div class="calc-col">
         <div class="calc-col-header your"><span>YOUR OFFER</span><span class="calc-total" id="your-total">0 tokens</span></div>
-        <div class="calc-search-row">
-          <input id="calc-search-your" type="text" placeholder="Search pet to add..." oninput="calcSearch('your')" autocomplete="off"/>
-        </div>
+        <div class="calc-search-row"><input id="calc-search-your" type="text" placeholder="Search pet to add..." oninput="calcSearch('your')" autocomplete="off"/></div>
         <div class="calc-dropdown" id="calc-drop-your"></div>
         <div class="calc-manual-row">
           <input type="text" id="calc-manual-label-your" placeholder="Label (optional)"/>
@@ -116,9 +110,7 @@
       </div>
       <div class="calc-col">
         <div class="calc-col-header their"><span>THEIR OFFER</span><span class="calc-total" id="their-total">0 tokens</span></div>
-        <div class="calc-search-row">
-          <input id="calc-search-their" type="text" placeholder="Search pet to add..." oninput="calcSearch('their')" autocomplete="off"/>
-        </div>
+        <div class="calc-search-row"><input id="calc-search-their" type="text" placeholder="Search pet to add..." oninput="calcSearch('their')" autocomplete="off"/></div>
         <div class="calc-dropdown" id="calc-drop-their"></div>
         <div class="calc-manual-row">
           <input type="text" id="calc-manual-label-their" placeholder="Label (optional)"/>
@@ -134,10 +126,7 @@
 <!-- CREDITS -->
 <div id="page-credits" class="page">
   <div class="credits-wrap">
-    <div class="page-header">
-      <h1>Credits <span>&amp; Team</span></h1>
-      <p>The people who make this value list possible</p>
-    </div>
+    <div class="page-header"><h1>Credits <span>&amp; Team</span></h1><p>The people who make this value list possible</p></div>
     <div class="credits-grid" id="credits-grid"><div class="grid-loading">Loading...</div></div>
     <div class="credits-footer">
       <p>Made by <strong>Aousisgood1</strong> &nbsp;·&nbsp; CSU Value List</p>
@@ -176,17 +165,17 @@
     <div class="settings-group">
       <div class="settings-group-title">Browsing</div>
       <div class="settings-row">
-        <div class="settings-row-info"><div class="settings-row-label">Default Sort Order</div><div class="settings-row-desc">How pets are sorted when you load the list</div></div>
+        <div class="settings-row-info"><div class="settings-row-label">Default Sort Order</div><div class="settings-row-desc">How pets are sorted on load</div></div>
         <select class="settings-select" id="set-sort" onchange="saveSettings()">
           <option value="oc_first">O/C First (default)</option>
           <option value="expensive">Most Expensive</option>
           <option value="cheap">Cheapest First</option>
-          <option value="az">Alphabetical A → Z</option>
-          <option value="za">Alphabetical Z → A</option>
+          <option value="az">A → Z</option>
+          <option value="za">Z → A</option>
         </select>
       </div>
       <div class="settings-row">
-        <div class="settings-row-info"><div class="settings-row-label">Default Variant</div><div class="settings-row-desc">Which variant tab is active by default</div></div>
+        <div class="settings-row-info"><div class="settings-row-label">Default Variant Tab</div><div class="settings-row-desc">Which variant is active by default</div></div>
         <select class="settings-select" id="set-variant" onchange="saveSettings()">
           <option value="all">All</option>
           <option value="gold">Gold Only</option>
@@ -194,16 +183,20 @@
         </select>
       </div>
       <div class="settings-row">
-        <div class="settings-row-info"><div class="settings-row-label">Show Existence Rate on Cards</div><div class="settings-row-desc">Display the rarity rate tag on pet cards</div></div>
+        <div class="settings-row-info"><div class="settings-row-label">Show Existence Rate on Cards</div><div class="settings-row-desc">Display the rarity rate tag</div></div>
         <label class="toggle"><input type="checkbox" id="set-showrate" checked onchange="saveSettings()"/><span class="toggle-slider"></span></label>
       </div>
       <div class="settings-row">
-        <div class="settings-row-info"><div class="settings-row-label">Show Category Tag on Cards</div><div class="settings-row-desc">Display the category label on pet cards</div></div>
+        <div class="settings-row-info"><div class="settings-row-label">Show Category Tag on Cards</div><div class="settings-row-desc">Display the category label</div></div>
         <label class="toggle"><input type="checkbox" id="set-showcat" checked onchange="saveSettings()"/><span class="toggle-slider"></span></label>
       </div>
       <div class="settings-row">
-        <div class="settings-row-info"><div class="settings-row-label">Show Pet Power on Cards</div><div class="settings-row-desc">Display the ⚡ power value on pet cards</div></div>
+        <div class="settings-row-info"><div class="settings-row-label">Show Pet Power on Cards</div><div class="settings-row-desc">Display the ⚡ power value</div></div>
         <label class="toggle"><input type="checkbox" id="set-showpower" checked onchange="saveSettings()"/><span class="toggle-slider"></span></label>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-info"><div class="settings-row-label">Show Demand on Cards</div><div class="settings-row-desc">Display the 📊 demand indicator</div></div>
+        <label class="toggle"><input type="checkbox" id="set-showdemand" checked onchange="saveSettings()"/><span class="toggle-slider"></span></label>
       </div>
       <div class="settings-row">
         <div class="settings-row-info"><div class="settings-row-label">Show Last Edited on Cards</div><div class="settings-row-desc">Display when a pet was last updated</div></div>
@@ -223,7 +216,7 @@
       </div>
     </div>
 
-    <div class="settings-version">CSU Value List &nbsp;·&nbsp; Made by Aousisgood1 &nbsp;·&nbsp; Always dark, always fast.<br/><span id="settings-ver-display"></span></div>
+    <div class="settings-version">CSU Value List &nbsp;·&nbsp; Made by Aousisgood1<br/><span id="settings-ver-display"></span></div>
   </div>
 </div>
 
@@ -256,10 +249,7 @@
         <div id="admin-pet-list"></div>
       </div>
       <div class="section-card" style="margin-top:1.1rem;">
-        <div class="section-header">
-          <span>ACTIVITY LOG</span>
-          <button class="btn-sm" onclick="loadAdminLog()">↻ Refresh</button>
-        </div>
+        <div class="section-header"><span>ACTIVITY LOG</span><button class="btn-sm" onclick="loadAdminLog()">↻ Refresh</button></div>
         <div id="admin-log-list"><div class="log-empty">Loading...</div></div>
       </div>
     </div>
