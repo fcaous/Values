@@ -10,13 +10,12 @@
 </head>
 <body>
 
-<!-- Mobile Nav Overlay -->
 <div class="mobile-nav-overlay" id="mobile-nav-overlay">
   <a onclick="showPage('home');closeMobileNav()" class="nav-link">🏠 Home</a>
-  <a onclick="showPage('calculator');closeMobileNav()" class="nav-link">🧮 Calculator</a>
+  <a onclick="showPage('settings');closeMobileNav()" class="nav-link">⚙ Settings</a>
+  <a onclick="showPage('ai');closeMobileNav()" class="nav-link">✦ AI Assistant</a>
   <a onclick="showPage('credits');closeMobileNav()" class="nav-link">👥 Credits</a>
   <a onclick="showPage('admin');closeMobileNav()" class="nav-link">🔐 Admin</a>
-  <a onclick="showPage('settings');closeMobileNav()" class="nav-link">⚙ Settings</a>
   <div class="mobile-nav-divider"></div>
   <div class="mobile-status-row">
     <div class="status-pill" id="status-pill-mobile"><span class="status-dot"></span><span id="mob-status-text">CONNECTING</span></div>
@@ -24,27 +23,24 @@
   </div>
 </div>
 
-<!-- NAV -->
 <nav id="main-nav">
   <div class="nav-logo" onclick="showPage('home');closeMobileNav()" id="nav-logo">
     <span class="logo-csu">CSU</span>
     <span class="logo-vl">VALUE LIST</span>
-    <span class="logo-version" id="nav-version">v1.0</span>
+    <span class="logo-version" id="nav-version">v2.0</span>
   </div>
   <div class="nav-links">
-    <a onclick="showPage('home')" class="nav-link active" id="nl-home">Home</a>
-    <a onclick="showPage('calculator')" class="nav-link" id="nl-calculator">Calculator</a>
-    <a onclick="showPage('credits')" class="nav-link" id="nl-credits">Credits</a>
-    <a onclick="showPage('admin')" class="nav-link" id="nl-admin">Admin</a>
-    <a onclick="showPage('settings')" class="nav-link" id="nl-settings">⚙ Settings</a>
+    <a onclick="showPage('home')"     class="nav-link active" id="nl-home">Home</a>
+    <a onclick="showPage('settings')" class="nav-link"        id="nl-settings">Settings</a>
+    <a onclick="showPage('ai')"       class="nav-link"        id="nl-ai">✦ AI</a>
+    <a onclick="showPage('credits')"  class="nav-link"        id="nl-credits">Credits</a>
+    <a onclick="showPage('admin')"    class="nav-link"        id="nl-admin">Admin</a>
   </div>
   <div class="nav-right">
     <div class="status-pill" id="status-pill"><span class="status-dot"></span><span id="status-text">CONNECTING</span></div>
     <div class="pet-counter" id="pet-counter">— pets</div>
   </div>
-  <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
+  <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileNav()"><span></span><span></span><span></span></button>
 </nav>
 
 <!-- HOME -->
@@ -74,7 +70,7 @@
       <select id="sort-filter" class="sort-select" onchange="onSortChange()">
         <option value="oc_first">👑 O/C First</option>
         <option value="expensive">💰 Most Expensive</option>
-        <option value="cheap">🏷 Cheapest First</option>
+        <option value="cheap">🏷 Cheapest</option>
         <option value="az">A → Z</option>
         <option value="za">Z → A</option>
       </select>
@@ -84,76 +80,24 @@
   <div class="pet-grid" id="pet-grid"><div class="grid-loading">Loading pets...</div></div>
 </div>
 
-<!-- CALCULATOR -->
-<div id="page-calculator" class="page">
-  <div class="calc-wrap">
-    <div class="page-header">
-      <h1>Trade <span>Calculator</span></h1>
-      <p>Search pets or add token amounts manually — O/C pets are flagged automatically</p>
-    </div>
-    <div class="calc-grid">
-      <div class="calc-col">
-        <div class="calc-col-header your"><span>YOUR OFFER</span><span class="calc-total" id="your-total">0 tokens</span></div>
-        <div class="calc-search-row"><input id="calc-search-your" type="text" placeholder="Search pet to add..." oninput="calcSearch('your')" autocomplete="off"/></div>
-        <div class="calc-dropdown" id="calc-drop-your"></div>
-        <div class="calc-manual-row">
-          <input type="text" id="calc-manual-label-your" placeholder="Label (optional)"/>
-          <input type="number" id="calc-manual-tokens-your" placeholder="Tokens" min="0"/>
-          <button class="btn-add-tokens" onclick="addManualTokens('your')">+ Add</button>
-        </div>
-        <div class="calc-items" id="your-items"><div class="calc-empty">No pets added yet</div></div>
-      </div>
-      <div class="calc-mid">
-        <div class="calc-vs">VS</div>
-        <div class="calc-result" id="calc-result">—</div>
-        <button class="calc-clear-btn" onclick="clearCalc()">Clear All</button>
-      </div>
-      <div class="calc-col">
-        <div class="calc-col-header their"><span>THEIR OFFER</span><span class="calc-total" id="their-total">0 tokens</span></div>
-        <div class="calc-search-row"><input id="calc-search-their" type="text" placeholder="Search pet to add..." oninput="calcSearch('their')" autocomplete="off"/></div>
-        <div class="calc-dropdown" id="calc-drop-their"></div>
-        <div class="calc-manual-row">
-          <input type="text" id="calc-manual-label-their" placeholder="Label (optional)"/>
-          <input type="number" id="calc-manual-tokens-their" placeholder="Tokens" min="0"/>
-          <button class="btn-add-tokens" onclick="addManualTokens('their')">+ Add</button>
-        </div>
-        <div class="calc-items" id="their-items"><div class="calc-empty">No pets added yet</div></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- CREDITS -->
-<div id="page-credits" class="page">
-  <div class="credits-wrap">
-    <div class="page-header"><h1>Credits <span>&amp; Team</span></h1><p>The people who make this value list possible</p></div>
-    <div class="credits-grid" id="credits-grid"><div class="grid-loading">Loading...</div></div>
-    <div class="credits-footer">
-      <p>Made by <strong>Aousisgood1</strong> &nbsp;·&nbsp; CSU Value List</p>
-      <p>Want to help? Contact Aousisgood1 on Roblox or Discord.</p>
-    </div>
-  </div>
-</div>
-
 <!-- SETTINGS -->
 <div id="page-settings" class="page">
   <div class="settings-wrap">
     <div class="page-header"><h1>⚙ <span>Settings</span></h1><p>Customize your experience</p></div>
-
     <div class="settings-group">
       <div class="settings-group-title">Appearance</div>
       <div class="settings-row">
-        <div class="settings-row-info"><div class="settings-row-label">Accent Color</div><div class="settings-row-desc">Choose your interface highlight color</div></div>
+        <div class="settings-row-info"><div class="settings-row-label">Accent Color</div><div class="settings-row-desc">Interface highlight color</div></div>
         <div class="accent-swatches">
-          <div class="accent-swatch sw-blue active" data-accent="blue" onclick="setAccent('blue')" title="Blue"></div>
-          <div class="accent-swatch sw-teal" data-accent="teal" onclick="setAccent('teal')" title="Teal"></div>
-          <div class="accent-swatch sw-purple" data-accent="purple" onclick="setAccent('purple')" title="Purple"></div>
-          <div class="accent-swatch sw-amber" data-accent="amber" onclick="setAccent('amber')" title="Amber"></div>
-          <div class="accent-swatch sw-rose" data-accent="rose" onclick="setAccent('rose')" title="Rose"></div>
+          <div class="accent-swatch sw-blue   active" data-accent="blue"   onclick="setAccent('blue')"   title="Blue"></div>
+          <div class="accent-swatch sw-teal"         data-accent="teal"   onclick="setAccent('teal')"   title="Teal"></div>
+          <div class="accent-swatch sw-purple"        data-accent="purple" onclick="setAccent('purple')" title="Purple"></div>
+          <div class="accent-swatch sw-amber"         data-accent="amber"  onclick="setAccent('amber')"  title="Amber"></div>
+          <div class="accent-swatch sw-rose"          data-accent="rose"   onclick="setAccent('rose')"   title="Rose"></div>
         </div>
       </div>
       <div class="settings-row">
-        <div class="settings-row-info"><div class="settings-row-label">Grid Density</div><div class="settings-row-desc">How compact or spacious the pet cards appear</div></div>
+        <div class="settings-row-info"><div class="settings-row-label">Grid Density</div><div class="settings-row-desc">How compact or spacious pet cards appear</div></div>
         <select class="settings-select" id="set-density" onchange="applyDensity(this.value)">
           <option value="compact">Compact</option>
           <option value="normal" selected>Normal</option>
@@ -161,7 +105,6 @@
         </select>
       </div>
     </div>
-
     <div class="settings-group">
       <div class="settings-group-title">Browsing</div>
       <div class="settings-row">
@@ -203,20 +146,59 @@
         <label class="toggle"><input type="checkbox" id="set-showedited" onchange="saveSettings()"/><span class="toggle-slider"></span></label>
       </div>
     </div>
-
     <div class="settings-group">
       <div class="settings-group-title">Data</div>
       <div class="settings-row">
-        <div class="settings-row-info"><div class="settings-row-label">Clear Favorites</div><div class="settings-row-desc">Remove all starred/saved pets</div></div>
+        <div class="settings-row-info"><div class="settings-row-label">Clear Favorites</div><div class="settings-row-desc">Remove all starred pets</div></div>
         <button class="btn-outline" onclick="if(confirm('Clear all favorites?')){localStorage.removeItem('csu_favs');updateFavCount();applyVariantFilter();toast('Favorites cleared');}">Clear</button>
       </div>
       <div class="settings-row">
-        <div class="settings-row-info"><div class="settings-row-label">Reset All Settings</div><div class="settings-row-desc">Restore all options to their default values</div></div>
+        <div class="settings-row-info"><div class="settings-row-label">Clear AI Chat History</div><div class="settings-row-desc">Delete all your saved conversations</div></div>
+        <button class="btn-outline" onclick="clearAllAiChats()">Clear</button>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-info"><div class="settings-row-label">Reset All Settings</div><div class="settings-row-desc">Restore all options to defaults</div></div>
         <button class="btn-outline" onclick="resetSettings()" style="color:var(--danger);border-color:var(--danger);">Reset</button>
       </div>
     </div>
-
     <div class="settings-version">CSU Value List &nbsp;·&nbsp; Made by Aousisgood1<br/><span id="settings-ver-display"></span></div>
+  </div>
+</div>
+
+<!-- AI ASSISTANT -->
+<div id="page-ai" class="page">
+  <div class="ai-wrap">
+    <!-- Sidebar -->
+    <div class="ai-sidebar" id="ai-sidebar">
+      <button class="ai-new-btn" onclick="newAiChat()">+ New Chat</button>
+      <div class="ai-chat-list" id="ai-chat-list"><div class="ai-chat-empty">No chats yet</div></div>
+    </div>
+    <!-- Toggle sidebar on mobile -->
+    <button class="ai-sidebar-toggle" id="ai-sidebar-toggle" onclick="toggleAiSidebar()">☰ Chats</button>
+    <!-- Main -->
+    <div class="ai-main" id="ai-main">
+      <div class="ai-messages" id="ai-messages">
+        <!-- Welcome screen shown by JS -->
+      </div>
+      <div class="ai-input-bar">
+        <textarea id="ai-input" class="ai-textarea" placeholder="Ask about pet values, trades, strategies..." rows="1" onkeydown="aiInputKey(event)" oninput="autoResizeAiInput(this)"></textarea>
+        <button class="ai-send-btn" id="ai-send-btn" onclick="sendAiMessage()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CREDITS -->
+<div id="page-credits" class="page">
+  <div class="credits-wrap">
+    <div class="page-header"><h1>Credits <span>&amp; Team</span></h1><p>The people who make this value list possible</p></div>
+    <div class="credits-grid" id="credits-grid"><div class="grid-loading">Loading...</div></div>
+    <div class="credits-footer">
+      <p>Made by <strong>Aousisgood1</strong> &nbsp;·&nbsp; CSU Value List</p>
+      <p>Want to help? Contact Aousisgood1 on Roblox or Discord.</p>
+    </div>
   </div>
 </div>
 
@@ -241,14 +223,30 @@
           <button class="btn-hidden" id="owner-secret-btn" onclick="showPage('owner')" style="display:none;">⚙</button>
         </div>
       </div>
-      <div class="section-card">
+
+      <!-- AI Prompt Editor -->
+      <div class="section-card" style="margin-bottom:1.1rem;">
+        <div class="section-header"><span>✦ AI SYSTEM PROMPT</span><span class="muted-count">What the AI knows about your game</span></div>
+        <div style="padding:1rem;">
+          <textarea id="ai-prompt-editor" style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;padding:.75rem;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.92rem;outline:none;resize:vertical;min-height:110px;line-height:1.5;" placeholder="Enter the AI system prompt — tell it about the game, how to behave, etc. Pet values are auto-appended from the database."></textarea>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:.6rem;flex-wrap:wrap;gap:.5rem;">
+            <span style="font-size:.8rem;color:var(--text-muted);">Pet values are automatically included — no need to add them manually.</span>
+            <button class="btn-primary" onclick="saveAiPrompt()" style="padding:.5rem 1.2rem;">Save Prompt</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pets List -->
+      <div class="section-card" style="margin-bottom:1.1rem;">
         <div class="section-header">
           <span>ALL PETS</span>
           <input id="admin-search" type="text" class="inline-search" placeholder="Filter..." oninput="adminFilterPets()"/>
         </div>
         <div id="admin-pet-list"></div>
       </div>
-      <div class="section-card" style="margin-top:1.1rem;">
+
+      <!-- Activity Log -->
+      <div class="section-card">
         <div class="section-header"><span>ACTIVITY LOG</span><button class="btn-sm" onclick="loadAdminLog()">↻ Refresh</button></div>
         <div id="admin-log-list"><div class="log-empty">Loading...</div></div>
       </div>
@@ -278,9 +276,9 @@
       <div class="section-card" style="margin-bottom:1rem;">
         <div class="section-header"><span>ADD ADMIN</span></div>
         <div class="owner-form-row">
-          <input id="ow-adm-user" type="text" placeholder="Username" class="inline-input"/>
-          <input id="ow-adm-display" type="text" placeholder="Display name" class="inline-input"/>
-          <input id="ow-adm-pass" type="password" placeholder="Password" class="inline-input"/>
+          <input id="ow-adm-user"    type="text"     placeholder="Username"     class="inline-input"/>
+          <input id="ow-adm-display" type="text"     placeholder="Display name" class="inline-input"/>
+          <input id="ow-adm-pass"    type="password" placeholder="Password"     class="inline-input"/>
           <select id="ow-adm-role" class="inline-input"><option value="admin">Admin</option><option value="senior">Senior Admin</option></select>
           <button class="btn-primary" onclick="ownerAddAdmin()">+ Add</button>
         </div>
@@ -289,10 +287,10 @@
       <div class="section-card" style="margin-bottom:1rem;">
         <div class="section-header"><span>MANAGE CREDITS</span></div>
         <div class="owner-form-row">
-          <input id="ow-cr-name" type="text" placeholder="Name" class="inline-input"/>
-          <input id="ow-cr-role" type="text" placeholder="Role" class="inline-input"/>
-          <input id="ow-cr-discord" type="text" placeholder="Discord tag" class="inline-input"/>
-          <input id="ow-cr-order" type="number" placeholder="Order" class="inline-input" style="max-width:80px;"/>
+          <input id="ow-cr-name"    type="text"   placeholder="Name"        class="inline-input"/>
+          <input id="ow-cr-role"    type="text"   placeholder="Role"        class="inline-input"/>
+          <input id="ow-cr-discord" type="text"   placeholder="Discord tag" class="inline-input"/>
+          <input id="ow-cr-order"   type="number" placeholder="Order"       class="inline-input" style="max-width:80px;"/>
           <button class="btn-primary" onclick="ownerAddCredit()">+ Add</button>
         </div>
         <div id="owner-credits-list"></div>
