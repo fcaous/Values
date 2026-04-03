@@ -197,6 +197,25 @@ app.delete('/api/admin/pets/:id', authAdmin, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+function sendWebhook(url, payload) {
+  return new Promise((resolve) => {
+    if (!url) return resolve({ ok: false });
+    let pu; try { pu = new URL(url); } catch { return resolve({ ok: false }); }
+    const body = JSON.stringify(payload);
+    const opts = {
+      hostname: pu.hostname, path: pu.pathname + pu.search, method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
+    };
+    const req = https.request(opts, (res) => {
+      let d = ''; res.on('data', c => d += c);
+      res.on('end', () => resolve({ ok: res.statusCode < 300 }));
+    });
+    req.on('error', () => resolve({ ok: false }));
+    req.setTimeout(8000, () => { req.destroy(); resolve({ ok: false }); });
+    req.write(body); req.end();
+  });
+}
+
 // ── Admin History ─────────────────────────
 app.post('/api/admin/pets/:id/history', authAdmin, async (req, res) => {
   try {
@@ -411,6 +430,177 @@ app.delete('/api/owner/pets/:id', authOwner, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ══════════════════════════════════════════
+//  POTION PRICES
+// ══════════════════════════════════════════
+
+const POTION_LOG_WEBHOOK = 'https://discord.com/api/webhooks/1489602577657102517/cM3e0g5zVPPx3gJVvpVCIrRNDO71viFX0xpjfNAEamk3RBzGnecb55pM7-gXN98Go0i5';
+
+function parsePriceToNum(price) {
+  if (!price) return null;
+  const s = String(price).trim();
+  if (/^[0-9]*\.?[0-9]+[Kk]$/.test(s)) return parseFloat(s) * 1000;
+  if (/^[0-9]*\.?[0-9]+[Mm]$/.test(s)) return parseFloat(s) * 1000000;
+  if (/^[0-9]*\.?[0-9]+[Bb]$/.test(s)) return parseFloat(s) * 1000000000;
+  if (/^[0-9]*\.?[0-9]+$/.test(s))     return parseFloat(s);
+  return null;
+}
+
+function fmtPriceNum(n) {
+  if (n === null || n === undefined || isNaN(n)) return '?';
+  if (n >= 1e9) return (n / 1e9).toFixed(1).replace(/\.0$/, '') + 'B';
+  if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, '') + 'K';
+  return n % 1 === 0 ? n.toString() : n.toFixed(1);
+}
+
+async function logPotionWebhook(message) {
+  try {
+    await sendWebhook(POTION_LOG_WEBHOOK, {
+      username: 'CSU Potion Prices',
+      embeds: [{
+        description: message,
+        color: 0x9f72f0,
+        timestamp: new Date().toISOString(),
+        footer: { text: 'CSU Value List — Potion Prices' },
+      }],
+    });
+  } catch (e) {
+    console.error('[CSU] potion webhook log failed:', e.message);
+  }
+}
+
+// GET all prices for a potion
+app.get('/api/potions/:petId/prices', async (req, res) => {
+  try {
+    const rows = await sbRequest('GET', 'potion_prices', null,
+      `?pet_id=eq.${encodeURIComponent(req.params.petId)}&order=updated_at.desc&select=*`);
+    res.json(rows || []);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// GET all potion prices (for AI)
+app.get('/api/potions/prices/all', async (req, res) => {
+  try {
+    const rows = await sbRequest('GET', 'potion_prices', null,
+      '?order=pet_name.asc,updated_at.desc&select=*');
+    res.json(rows || []);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// POST — submit or update a price
+app.post('/api/potions/:petId/prices', async (req, res) => {
+  try {
+    let { discord_user, price, pet_name } = req.body;
+    if (!discord_user || !price) return res.status(400).json({ error: 'discord_user and price required' });
+
+    // Auto prepend @
+    discord_user = discord_user.trim();
+    if (!discord_user.startsWith('@')) discord_user = '@' + discord_user;
+
+    // Validate price format
+    const priceNum = parsePriceToNum(price);
+    if (priceNum === null) return res.status(400).json({ error: 'Invalid price format. Use numbers like 5000, 1.5K, 2M etc.' });
+
+    const petId = req.params.petId;
+    const now   = new Date().toISOString();
+
+    // Check if exists
+    const existing = await sbRequest('GET', 'potion_prices', null,
+      `?pet_id=eq.${encodeURIComponent(petId)}&discord_user=eq.${encodeURIComponent(discord_user)}&select=id,price`);
+
+    let isUpdate = false;
+    let oldPrice = null;
+
+    if (existing && existing.length > 0) {
+      // Update
+      oldPrice  = existing[0].price;
+      isUpdate  = true;
+      await sbRequest('PATCH', 'potion_prices',
+        { price: String(price).trim(), updated_at: now },
+        `?pet_id=eq.${encodeURIComponent(petId)}&discord_user=eq.${encodeURIComponent(discord_user)}`
+      );
+    } else {
+      // Insert
+      await sbRequest('POST', 'potion_prices', {
+        pet_id:       petId,
+        pet_name:     pet_name || petId,
+        discord_user: discord_user,
+        price:        String(price).trim(),
+        created_at:   now,
+        updated_at:   now,
+      }, '');
+    }
+
+    // Log to webhook
+    const logMsg = isUpdate
+      ? `✏️ **${discord_user}** updated price of **${pet_name || petId}** from \`${oldPrice}\` → \`${price}\` tokens`
+      : `➕ **${discord_user}** listed price of **${pet_name || petId}** as \`${price}\` tokens`;
+    await logPotionWebhook(logMsg);
+
+    // Log to admin_logs
+    await sbRequest('POST', 'admin_logs', {
+      admin_username: discord_user,
+      action:         isUpdate ? 'UPDATE_POTION_PRICE' : 'SET_POTION_PRICE',
+      detail:         `Price of "${pet_name || petId}" set to ${price} tokens by ${discord_user}`,
+      created_at:     now,
+    }, '').catch(() => {});
+
+    res.json({
+      success: true,
+      updated: isUpdate,
+      message: isUpdate
+        ? `✔ Your price has been updated from ${oldPrice} to ${price} tokens`
+        : `✔ Your price of ${price} tokens has been listed`,
+    });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// DELETE — user deletes own price
+app.delete('/api/potions/:petId/prices', async (req, res) => {
+  try {
+    let { discord_user } = req.body;
+    if (!discord_user) return res.status(400).json({ error: 'discord_user required' });
+    discord_user = discord_user.trim();
+    if (!discord_user.startsWith('@')) discord_user = '@' + discord_user;
+
+    const petId = req.params.petId;
+
+    // Check exists
+    const existing = await sbRequest('GET', 'potion_prices', null,
+      `?pet_id=eq.${encodeURIComponent(petId)}&discord_user=eq.${encodeURIComponent(discord_user)}&select=id,price,pet_name`);
+    if (!existing || !existing.length) return res.status(404).json({ error: 'No price found for this Discord username' });
+
+    const { price, pet_name } = existing[0];
+    await sbRequest('DELETE', 'potion_prices', null,
+      `?pet_id=eq.${encodeURIComponent(petId)}&discord_user=eq.${encodeURIComponent(discord_user)}`);
+
+    await logPotionWebhook(`🗑️ **${discord_user}** removed their price listing of \`${price}\` tokens for **${pet_name || petId}**`);
+    await sbRequest('POST', 'admin_logs', {
+      admin_username: discord_user,
+      action:         'DELETE_POTION_PRICE',
+      detail:         `${discord_user} removed their price for "${pet_name || petId}"`,
+      created_at:     new Date().toISOString(),
+    }, '').catch(() => {});
+
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Admin delete any price by id
+app.delete('/api/admin/potion-prices/:id', authAdmin, async (req, res) => {
+  try {
+    const rows = await sbRequest('GET', 'potion_prices', null,
+      `?id=eq.${encodeURIComponent(req.params.id)}&select=*`);
+    if (!rows || !rows.length) return res.status(404).json({ error: 'Not found' });
+    const p = rows[0];
+    await sbRequest('DELETE', 'potion_prices', null, `?id=eq.${encodeURIComponent(req.params.id)}`);
+    await logPotionWebhook(`🛡️ **Admin (${req.admin.username})** removed price listing of \`${p.price}\` tokens by ${p.discord_user} for **${p.pet_name}**`);
+    await writeLog(req.admin.username, 'DELETE_POTION_PRICE', `Removed ${p.discord_user}'s price for "${p.pet_name}"`);
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+    
 // ── Keepalive ─────────────────────────────
 setInterval(() => { http.get(`http://localhost:${PORT}/api/status`, r => r.resume()).on('error', () => {}); }, 10 * 60 * 1000);
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'frontend', 'index.html')));
