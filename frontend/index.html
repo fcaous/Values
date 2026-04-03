@@ -11,11 +11,11 @@
 <body>
 
 <div class="mobile-nav-overlay" id="mobile-nav-overlay">
-  <a onclick="showPage('home');closeMobileNav()" class="nav-link">🏠 Home</a>
+  <a onclick="showPage('home');closeMobileNav()"     class="nav-link">🏠 Home</a>
   <a onclick="showPage('settings');closeMobileNav()" class="nav-link">⚙ Settings</a>
-  <a onclick="showPage('ai');closeMobileNav()" class="nav-link">✦ AI Assistant</a>
-  <a onclick="showPage('credits');closeMobileNav()" class="nav-link">👥 Credits</a>
-  <a onclick="showPage('admin');closeMobileNav()" class="nav-link">🔐 Admin</a>
+  <a onclick="showPage('admin');closeMobileNav()"    class="nav-link">🔐 Admin</a>
+  <a onclick="showPage('ai');closeMobileNav()"       class="nav-link">✦ AI Assistant</a>
+  <a onclick="showPage('credits');closeMobileNav()"  class="nav-link">👥 Credits</a>
   <div class="mobile-nav-divider"></div>
   <div class="mobile-status-row">
     <div class="status-pill" id="status-pill-mobile"><span class="status-dot"></span><span id="mob-status-text">CONNECTING</span></div>
@@ -32,33 +32,42 @@
   <div class="nav-links">
     <a onclick="showPage('home')"     class="nav-link active" id="nl-home">Home</a>
     <a onclick="showPage('settings')" class="nav-link"        id="nl-settings">Settings</a>
+    <a onclick="showPage('admin')"    class="nav-link"        id="nl-admin">Admin</a>
     <a onclick="showPage('ai')"       class="nav-link"        id="nl-ai">✦ AI</a>
     <a onclick="showPage('credits')"  class="nav-link"        id="nl-credits">Credits</a>
-    <a onclick="showPage('admin')"    class="nav-link"        id="nl-admin">Admin</a>
   </div>
   <div class="nav-right">
     <div class="status-pill" id="status-pill"><span class="status-dot"></span><span id="status-text">CONNECTING</span></div>
     <div class="pet-counter" id="pet-counter">— pets</div>
   </div>
-  <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileNav()"><span></span><span></span><span></span></button>
+  <button class="nav-hamburger" id="nav-hamburger" onclick="toggleMobileNav()">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
-<!-- HOME -->
+<!-- ══ HOME ══════════════════════════════════════════════════════ -->
 <div id="page-home" class="page active">
   <div class="home-hero">
-    <div class="hero-title"><span class="ht-csu">CSU</span><span class="ht-vl">VALUE LIST</span></div>
+    <div class="hero-title">
+      <span class="ht-csu">CSU</span>
+      <span class="ht-vl">VALUE LIST</span>
+    </div>
     <p class="hero-sub">The most up-to-date pet values, maintained by trusted community admins.</p>
     <div class="search-bar-wrap">
       <span class="search-icon">🔍</span>
-      <input id="search-input" type="text" class="search-bar" placeholder="Search for a pet..." oninput="onSearch()" autocomplete="off"/>
+      <input id="search-input" type="text" class="search-bar"
+             placeholder="Search for a pet..." oninput="onSearch()" autocomplete="off"/>
       <button class="search-clear" id="search-clear" onclick="clearSearch()" style="display:none;">✕</button>
     </div>
   </div>
+
   <div class="filter-row">
     <button class="ftab active" id="ft-all"     onclick="setVariantFilter('all')">All</button>
     <button class="ftab gold"   id="ft-gold"    onclick="setVariantFilter('gold')">⭐ Gold</button>
     <button class="ftab rb"     id="ft-rainbow" onclick="setVariantFilter('rainbow')">🌈 Rainbow</button>
-    <button class="ftab fav"    id="ft-fav"     onclick="setVariantFilter('fav')">♥ Favorites<span id="ft-fav-count"></span></button>
+    <button class="ftab fav"    id="ft-fav"     onclick="setVariantFilter('fav')">
+      ♥ Favorites<span id="ft-fav-count"></span>
+    </button>
     <div class="filter-right">
       <select id="cat-filter" class="cat-select" onchange="loadPets()">
         <option value="">All categories</option>
@@ -77,38 +86,71 @@
       <span class="result-count" id="result-count"></span>
     </div>
   </div>
-  <div class="pet-grid" id="pet-grid"><div class="grid-loading">Loading pets...</div></div>
+
+  <div class="pet-grid" id="pet-grid">
+    <div class="grid-loading">Loading pets...</div>
+  </div>
 </div>
 
-<!-- SETTINGS -->
+<!-- ══ SETTINGS ══════════════════════════════════════════════════ -->
 <div id="page-settings" class="page">
   <div class="settings-wrap">
-    <div class="page-header"><h1>⚙ <span>Settings</span></h1><p>Customize your experience</p></div>
+    <div class="page-header">
+      <h1>⚙ <span>Settings</span></h1>
+      <p>Customize your experience</p>
+    </div>
+
+    <!-- Appearance -->
     <div class="settings-group">
       <div class="settings-group-title">Appearance</div>
+
       <div class="settings-row">
-        <div class="settings-row-info"><div class="settings-row-label">Accent Color</div><div class="settings-row-desc">Interface highlight color</div></div>
+        <div class="settings-row-info">
+          <div class="settings-row-label">Accent Color</div>
+          <div class="settings-row-desc">Interface highlight color</div>
+        </div>
         <div class="accent-swatches">
           <div class="accent-swatch sw-blue   active" data-accent="blue"   onclick="setAccent('blue')"   title="Blue"></div>
-          <div class="accent-swatch sw-teal"         data-accent="teal"   onclick="setAccent('teal')"   title="Teal"></div>
+          <div class="accent-swatch sw-teal"          data-accent="teal"   onclick="setAccent('teal')"   title="Teal"></div>
           <div class="accent-swatch sw-purple"        data-accent="purple" onclick="setAccent('purple')" title="Purple"></div>
           <div class="accent-swatch sw-amber"         data-accent="amber"  onclick="setAccent('amber')"  title="Amber"></div>
           <div class="accent-swatch sw-rose"          data-accent="rose"   onclick="setAccent('rose')"   title="Rose"></div>
         </div>
       </div>
+
       <div class="settings-row">
-        <div class="settings-row-info"><div class="settings-row-label">Grid Density</div><div class="settings-row-desc">How compact or spacious pet cards appear</div></div>
+        <div class="settings-row-info">
+          <div class="settings-row-label">Grid Density</div>
+          <div class="settings-row-desc">How compact or spacious pet cards appear</div>
+        </div>
         <select class="settings-select" id="set-density" onchange="applyDensity(this.value)">
           <option value="compact">Compact</option>
           <option value="normal" selected>Normal</option>
           <option value="spacious">Spacious</option>
         </select>
       </div>
+
+      <div class="settings-row">
+        <div class="settings-row-info">
+          <div class="settings-row-label">Animations</div>
+          <div class="settings-row-desc">Typewriter and transition effects in AI chat</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="set-animations" checked onchange="saveSettings()"/>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
     </div>
+
+    <!-- Browsing -->
     <div class="settings-group">
       <div class="settings-group-title">Browsing</div>
+
       <div class="settings-row">
-        <div class="settings-row-info"><div class="settings-row-label">Default Sort Order</div><div class="settings-row-desc">How pets are sorted on load</div></div>
+        <div class="settings-row-info">
+          <div class="settings-row-label">Default Sort Order</div>
+          <div class="settings-row-desc">How pets are sorted on load</div>
+        </div>
         <select class="settings-select" id="set-sort" onchange="saveSettings()">
           <option value="oc_first">O/C First (default)</option>
           <option value="expensive">Most Expensive</option>
@@ -117,121 +159,189 @@
           <option value="za">Z → A</option>
         </select>
       </div>
+
       <div class="settings-row">
-        <div class="settings-row-info"><div class="settings-row-label">Default Variant Tab</div><div class="settings-row-desc">Which variant is active by default</div></div>
+        <div class="settings-row-info">
+          <div class="settings-row-label">Default Variant Tab</div>
+          <div class="settings-row-desc">Which variant is active by default</div>
+        </div>
         <select class="settings-select" id="set-variant" onchange="saveSettings()">
           <option value="all">All</option>
           <option value="gold">Gold Only</option>
           <option value="rainbow">Rainbow Only</option>
         </select>
       </div>
+
       <div class="settings-row">
-        <div class="settings-row-info"><div class="settings-row-label">Show Existence Rate on Cards</div><div class="settings-row-desc">Display the rarity rate tag</div></div>
-        <label class="toggle"><input type="checkbox" id="set-showrate" checked onchange="saveSettings()"/><span class="toggle-slider"></span></label>
+        <div class="settings-row-info">
+          <div class="settings-row-label">Show Existence Rate on Cards</div>
+          <div class="settings-row-desc">Display the rarity rate tag</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="set-showrate" checked onchange="saveSettings()"/>
+          <span class="toggle-slider"></span>
+        </label>
       </div>
+
       <div class="settings-row">
-        <div class="settings-row-info"><div class="settings-row-label">Show Category Tag on Cards</div><div class="settings-row-desc">Display the category label</div></div>
-        <label class="toggle"><input type="checkbox" id="set-showcat" checked onchange="saveSettings()"/><span class="toggle-slider"></span></label>
+        <div class="settings-row-info">
+          <div class="settings-row-label">Show Category Tag on Cards</div>
+          <div class="settings-row-desc">Display the category label</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="set-showcat" checked onchange="saveSettings()"/>
+          <span class="toggle-slider"></span>
+        </label>
       </div>
+
       <div class="settings-row">
-        <div class="settings-row-info"><div class="settings-row-label">Show Pet Power on Cards</div><div class="settings-row-desc">Display the ⚡ power value</div></div>
-        <label class="toggle"><input type="checkbox" id="set-showpower" checked onchange="saveSettings()"/><span class="toggle-slider"></span></label>
+        <div class="settings-row-info">
+          <div class="settings-row-label">Show Pet Power on Cards</div>
+          <div class="settings-row-desc">Display the ⚡ power value</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="set-showpower" checked onchange="saveSettings()"/>
+          <span class="toggle-slider"></span>
+        </label>
       </div>
+
       <div class="settings-row">
-        <div class="settings-row-info"><div class="settings-row-label">Show Demand on Cards</div><div class="settings-row-desc">Display the 📊 demand indicator</div></div>
-        <label class="toggle"><input type="checkbox" id="set-showdemand" checked onchange="saveSettings()"/><span class="toggle-slider"></span></label>
+        <div class="settings-row-info">
+          <div class="settings-row-label">Show Demand on Cards</div>
+          <div class="settings-row-desc">Display the 📊 demand indicator</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="set-showdemand" checked onchange="saveSettings()"/>
+          <span class="toggle-slider"></span>
+        </label>
       </div>
+
       <div class="settings-row">
-        <div class="settings-row-info"><div class="settings-row-label">Show Last Edited on Cards</div><div class="settings-row-desc">Display when a pet was last updated</div></div>
-        <label class="toggle"><input type="checkbox" id="set-showedited" onchange="saveSettings()"/><span class="toggle-slider"></span></label>
+        <div class="settings-row-info">
+          <div class="settings-row-label">Show Last Edited on Cards</div>
+          <div class="settings-row-desc">Display when a pet was last updated</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="set-showedited" onchange="saveSettings()"/>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-row-info">
+          <div class="settings-row-label">Compact Admin View</div>
+          <div class="settings-row-desc">Denser rows in the admin panel</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="set-compactadmin" onchange="saveSettings()"/>
+          <span class="toggle-slider"></span>
+        </label>
       </div>
     </div>
+
+    <!-- Data -->
     <div class="settings-group">
       <div class="settings-group-title">Data</div>
+
       <div class="settings-row">
-        <div class="settings-row-info"><div class="settings-row-label">Clear Favorites</div><div class="settings-row-desc">Remove all starred pets</div></div>
-        <button class="btn-outline" onclick="if(confirm('Clear all favorites?')){localStorage.removeItem('csu_favs');updateFavCount();applyVariantFilter();toast('Favorites cleared');}">Clear</button>
+        <div class="settings-row-info">
+          <div class="settings-row-label">Clear Favorites</div>
+          <div class="settings-row-desc">Remove all starred pets</div>
+        </div>
+        <button class="btn-outline" onclick="if(confirm('Clear all favorites?')){
+          localStorage.removeItem('csu_favs');
+          updateFavCount();
+          applyVariantFilter();
+          toast('Favorites cleared');
+        }">Clear</button>
       </div>
+
       <div class="settings-row">
-        <div class="settings-row-info"><div class="settings-row-label">Clear AI Chat History</div><div class="settings-row-desc">Delete all your saved conversations</div></div>
+        <div class="settings-row-info">
+          <div class="settings-row-label">Clear AI Chat History</div>
+          <div class="settings-row-desc">Delete all your saved conversations</div>
+        </div>
         <button class="btn-outline" onclick="clearAllAiChats()">Clear</button>
       </div>
+
       <div class="settings-row">
-        <div class="settings-row-info"><div class="settings-row-label">Reset All Settings</div><div class="settings-row-desc">Restore all options to defaults</div></div>
-        <button class="btn-outline" onclick="resetSettings()" style="color:var(--danger);border-color:var(--danger);">Reset</button>
+        <div class="settings-row-info">
+          <div class="settings-row-label">Reset All Settings</div>
+          <div class="settings-row-desc">Restore all options to defaults</div>
+        </div>
+        <button class="btn-outline" onclick="resetSettings()"
+                style="color:var(--danger);border-color:var(--danger);">Reset</button>
       </div>
     </div>
-    <div class="settings-version">CSU Value List &nbsp;·&nbsp; Made by Aousisgood1<br/><span id="settings-ver-display"></span></div>
-  </div>
-</div>
 
-<!-- AI ASSISTANT -->
-<div id="page-ai" class="page">
-  <div class="ai-wrap">
-    <!-- Sidebar -->
-    <div class="ai-sidebar" id="ai-sidebar">
-      <button class="ai-new-btn" onclick="newAiChat()">+ New Chat</button>
-      <div class="ai-chat-list" id="ai-chat-list"><div class="ai-chat-empty">No chats yet</div></div>
-    </div>
-    <!-- Toggle sidebar on mobile -->
-    <button class="ai-sidebar-toggle" id="ai-sidebar-toggle" onclick="toggleAiSidebar()">☰ Chats</button>
-    <!-- Main -->
-    <div class="ai-main" id="ai-main">
-      <div class="ai-messages" id="ai-messages">
-        <!-- Welcome screen shown by JS -->
-      </div>
-      <div class="ai-input-bar">
-        <textarea id="ai-input" class="ai-textarea" placeholder="Ask about pet values, trades, strategies..." rows="1" onkeydown="aiInputKey(event)" oninput="autoResizeAiInput(this)"></textarea>
-        <button class="ai-send-btn" id="ai-send-btn" onclick="sendAiMessage()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-        </button>
-      </div>
+    <div class="settings-version">
+      CSU Value List &nbsp;·&nbsp; Made by Aousisgood1<br/>
+      <span id="settings-ver-display"></span>
     </div>
   </div>
 </div>
 
-<!-- CREDITS -->
-<div id="page-credits" class="page">
-  <div class="credits-wrap">
-    <div class="page-header"><h1>Credits <span>&amp; Team</span></h1><p>The people who make this value list possible</p></div>
-    <div class="credits-grid" id="credits-grid"><div class="grid-loading">Loading...</div></div>
-    <div class="credits-footer">
-      <p>Made by <strong>Aousisgood1</strong> &nbsp;·&nbsp; CSU Value List</p>
-      <p>Want to help? Contact Aousisgood1 on Roblox or Discord.</p>
-    </div>
-  </div>
-</div>
-
-<!-- ADMIN -->
+<!-- ══ ADMIN ══════════════════════════════════════════════════════ -->
 <div id="page-admin" class="page">
   <div class="admin-wrap">
+
+    <!-- Login -->
     <div id="admin-login-view">
-      <div class="page-header"><h1>Admin <span>Panel</span></h1><p>Restricted — authorized valuers only</p></div>
+      <div class="page-header">
+        <h1>Admin <span>Panel</span></h1>
+        <p>Restricted — authorized valuers only</p>
+      </div>
       <div class="auth-card">
-        <div class="field-group"><label>Username</label><input id="adm-user" type="text" placeholder="Your admin username" autocomplete="off"/></div>
-        <div class="field-group"><label>Password</label><input id="adm-pass" type="password" placeholder="Your password"/></div>
+        <div class="field-group">
+          <label>Username</label>
+          <input id="adm-user" type="text" placeholder="Your admin username" autocomplete="off"/>
+        </div>
+        <div class="field-group">
+          <label>Password</label>
+          <input id="adm-pass" type="password" placeholder="Your password"/>
+        </div>
         <div id="adm-err" class="form-error" style="display:none;"></div>
-        <button class="btn-primary" id="adm-login-btn" onclick="adminLogin()" style="width:100%;margin-top:.5rem;">🔐 Sign In</button>
+        <button class="btn-primary" id="adm-login-btn" onclick="adminLogin()"
+                style="width:100%;margin-top:.5rem;">🔐 Sign In</button>
       </div>
     </div>
+
+    <!-- Dashboard -->
     <div id="admin-dash-view" style="display:none;">
       <div class="dash-topbar">
-        <div><h2 class="dash-title">Admin <span>Panel</span></h2><div class="dash-sub" id="adm-welcome">Welcome back</div></div>
+        <div>
+          <h2 class="dash-title">Admin <span>Panel</span></h2>
+          <div class="dash-sub" id="adm-welcome">Welcome back</div>
+        </div>
         <div class="dash-actions">
           <button class="btn-primary" onclick="openAddPetModal()">+ Add Pet</button>
           <button class="btn-outline" onclick="adminLogout()">Sign Out</button>
-          <button class="btn-hidden" id="owner-secret-btn" onclick="showPage('owner')" style="display:none;">⚙</button>
+          <button class="btn-hidden" id="owner-secret-btn"
+                  onclick="showPage('owner')" style="display:none;">⚙</button>
         </div>
       </div>
 
       <!-- AI Prompt Editor -->
       <div class="section-card" style="margin-bottom:1.1rem;">
-        <div class="section-header"><span>✦ AI SYSTEM PROMPT</span><span class="muted-count">What the AI knows about your game</span></div>
+        <div class="section-header">
+          <span>✦ AI SYSTEM PROMPT</span>
+          <span class="muted-count">Customise what the AI knows about your game</span>
+        </div>
         <div style="padding:1rem;">
-          <textarea id="ai-prompt-editor" style="width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;padding:.75rem;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:.92rem;outline:none;resize:vertical;min-height:110px;line-height:1.5;" placeholder="Enter the AI system prompt — tell it about the game, how to behave, etc. Pet values are auto-appended from the database."></textarea>
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:.6rem;flex-wrap:wrap;gap:.5rem;">
-            <span style="font-size:.8rem;color:var(--text-muted);">Pet values are automatically included — no need to add them manually.</span>
-            <button class="btn-primary" onclick="saveAiPrompt()" style="padding:.5rem 1.2rem;">Save Prompt</button>
+          <textarea id="ai-prompt-editor"
+            style="width:100%;background:var(--bg);border:1.5px solid var(--border);
+                   border-radius:9px;padding:.75rem;color:var(--text);
+                   font-family:'Rajdhani',sans-serif;font-size:.92rem;outline:none;
+                   resize:vertical;min-height:110px;line-height:1.5;"
+            placeholder="Enter the AI system prompt — tell it about the game, how to behave, etc.
+Pet values are auto-appended from the database."></textarea>
+          <div style="display:flex;align-items:center;justify-content:space-between;
+                      margin-top:.6rem;flex-wrap:wrap;gap:.5rem;">
+            <span style="font-size:.8rem;color:var(--text-muted);">
+              Pet values are automatically included — no need to add them manually.
+            </span>
+            <button class="btn-primary" onclick="saveAiPrompt()"
+                    style="padding:.5rem 1.2rem;">Save Prompt</button>
           </div>
         </div>
       </div>
@@ -240,31 +350,104 @@
       <div class="section-card" style="margin-bottom:1.1rem;">
         <div class="section-header">
           <span>ALL PETS</span>
-          <input id="admin-search" type="text" class="inline-search" placeholder="Filter..." oninput="adminFilterPets()"/>
+          <input id="admin-search" type="text" class="inline-search"
+                 placeholder="Filter..." oninput="adminFilterPets()"/>
         </div>
         <div id="admin-pet-list"></div>
       </div>
 
       <!-- Activity Log -->
       <div class="section-card">
-        <div class="section-header"><span>ACTIVITY LOG</span><button class="btn-sm" onclick="loadAdminLog()">↻ Refresh</button></div>
+        <div class="section-header">
+          <span>ACTIVITY LOG</span>
+          <button class="btn-sm" onclick="loadAdminLog()">↻ Refresh</button>
+        </div>
         <div id="admin-log-list"><div class="log-empty">Loading...</div></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- OWNER -->
-<div id="page-owner" class="page">
-  <div class="admin-wrap">
-    <div id="owner-login-view">
-      <div class="page-header"><h1>Owner <span>Panel</span></h1><p>Restricted access</p></div>
-      <div class="auth-card">
-        <div class="field-group"><label>Owner Password</label><input id="own-pass" type="password" placeholder="Owner password"/></div>
-        <div id="own-err" class="form-error" style="display:none;"></div>
-        <button class="btn-primary" onclick="ownerLogin()" style="width:100%;margin-top:.5rem;">🔐 Enter Panel</button>
+<!-- ══ AI ASSISTANT ═══════════════════════════════════════════════ -->
+<div id="page-ai" class="page">
+  <div class="ai-wrap">
+
+    <!-- Sidebar -->
+    <div class="ai-sidebar" id="ai-sidebar">
+      <button class="ai-new-btn" onclick="newAiChat()">+ New Chat</button>
+      <div class="ai-chat-list" id="ai-chat-list">
+        <div class="ai-chat-empty">No chats yet</div>
       </div>
     </div>
+
+    <!-- Mobile sidebar toggle -->
+    <button class="ai-sidebar-toggle" id="ai-sidebar-toggle"
+            onclick="toggleAiSidebar()">☰ Chats</button>
+
+    <!-- Main chat area -->
+    <div class="ai-main" id="ai-main">
+      <div class="ai-messages" id="ai-messages">
+        <!-- Welcome / messages rendered by JS -->
+      </div>
+
+      <div class="ai-input-bar">
+        <textarea id="ai-input" class="ai-textarea"
+                  placeholder="Ask about pet values, trades, strategies…"
+                  rows="1"
+                  onkeydown="aiInputKey(event)"
+                  oninput="autoResizeAiInput(this)"></textarea>
+        <button class="ai-send-btn" id="ai-send-btn" onclick="sendAiMessage()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CREDITS ════════════════════════════════════════════════════ -->
+<div id="page-credits" class="page">
+  <div class="credits-wrap">
+    <div class="page-header">
+      <h1>Credits <span>&amp; Team</span></h1>
+      <p>The people who make this value list possible</p>
+    </div>
+    <div class="credits-grid" id="credits-grid">
+      <div class="grid-loading">Loading...</div>
+    </div>
+    <div class="credits-footer">
+      <p>Made by <strong>Aousisgood1</strong> &nbsp;·&nbsp; CSU Value List</p>
+      <p>Want to help? Contact Aousisgood1 on Roblox or Discord.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ OWNER ══════════════════════════════════════════════════════ -->
+<div id="page-owner" class="page">
+  <div class="admin-wrap">
+
+    <!-- Login -->
+    <div id="owner-login-view">
+      <div class="page-header">
+        <h1>Owner <span>Panel</span></h1>
+        <p>Restricted access</p>
+      </div>
+      <div class="auth-card">
+        <div class="field-group">
+          <label>Owner Password</label>
+          <input id="own-pass" type="password" placeholder="Owner password"/>
+        </div>
+        <div id="own-err" class="form-error" style="display:none;"></div>
+        <button class="btn-primary" onclick="ownerLogin()"
+                style="width:100%;margin-top:.5rem;">🔐 Enter Panel</button>
+      </div>
+    </div>
+
+    <!-- Dashboard -->
     <div id="owner-dash-view" style="display:none;">
       <div class="dash-topbar">
         <h2 class="dash-title">Owner <span>Panel</span></h2>
@@ -273,38 +456,55 @@
           <button class="btn-outline" onclick="ownerLogout()">Sign Out</button>
         </div>
       </div>
+
+      <!-- Add Admin -->
       <div class="section-card" style="margin-bottom:1rem;">
         <div class="section-header"><span>ADD ADMIN</span></div>
         <div class="owner-form-row">
           <input id="ow-adm-user"    type="text"     placeholder="Username"     class="inline-input"/>
           <input id="ow-adm-display" type="text"     placeholder="Display name" class="inline-input"/>
           <input id="ow-adm-pass"    type="password" placeholder="Password"     class="inline-input"/>
-          <select id="ow-adm-role" class="inline-input"><option value="admin">Admin</option><option value="senior">Senior Admin</option></select>
+          <select id="ow-adm-role" class="inline-input">
+            <option value="admin">Admin</option>
+            <option value="senior">Senior Admin</option>
+          </select>
           <button class="btn-primary" onclick="ownerAddAdmin()">+ Add</button>
         </div>
         <div id="owner-admins-list"></div>
       </div>
+
+      <!-- Manage Credits -->
       <div class="section-card" style="margin-bottom:1rem;">
         <div class="section-header"><span>MANAGE CREDITS</span></div>
         <div class="owner-form-row">
           <input id="ow-cr-name"    type="text"   placeholder="Name"        class="inline-input"/>
           <input id="ow-cr-role"    type="text"   placeholder="Role"        class="inline-input"/>
           <input id="ow-cr-discord" type="text"   placeholder="Discord tag" class="inline-input"/>
-          <input id="ow-cr-order"   type="number" placeholder="Order"       class="inline-input" style="max-width:80px;"/>
+          <input id="ow-cr-order"   type="number" placeholder="Order"       class="inline-input"
+                 style="max-width:80px;"/>
           <button class="btn-primary" onclick="ownerAddCredit()">+ Add</button>
         </div>
         <div id="owner-credits-list"></div>
       </div>
+
+      <!-- All Pets -->
       <div class="section-card">
-        <div class="section-header"><span>ALL PETS</span><span id="owner-pet-count" class="muted-count"></span></div>
+        <div class="section-header">
+          <span>ALL PETS</span>
+          <span id="owner-pet-count" class="muted-count"></span>
+        </div>
         <div id="owner-pets-list"></div>
       </div>
     </div>
   </div>
 </div>
 
-<div id="modal-bg" onclick="if(event.target===this)closeModal()"><div id="modal-box"></div></div>
+<!-- ══ MODAL + TOAST ══════════════════════════════════════════════ -->
+<div id="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div id="modal-box"></div>
+</div>
 <div id="toast" class="toast" style="display:none;"></div>
+
 <script src="app.js"></script>
 </body>
 </html>
