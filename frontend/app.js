@@ -612,52 +612,54 @@ function openPetModal(pet) {
       `</div>`;
   };
 
-  showModal(
-    `<button class="modal-close" onclick="closeModal()">✕</button>
-    <div class="pet-modal-img">${imgHtml}</div>
-    <div class="pet-modal-body">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.3rem;">
-        <div class="pet-modal-name">${esc(pet.name)}</div>
-        <button class="modal-fav-btn" id="modal-fav-toggle" onclick="toggleFavModal('${esc(pet.id)}')">
-          ${faved ? '⭐ Saved' : '☆ Save'}
-        </button>
+ showModal(
+  `<button class="modal-close" onclick="closeModal()">✕</button>
+  <div class="pet-modal-img">${imgHtml}</div>
+  <div class="pet-modal-body">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.3rem;">
+      <div class="pet-modal-name">${esc(pet.name)}</div>
+      <button class="modal-fav-btn" id="modal-fav-toggle" onclick="toggleFavModal('${esc(pet.id)}')">
+        ${faved ? '⭐ Saved' : '☆ Save'}
+      </button>
+    </div>
+    <div class="pet-modal-cat">${esc(pet.category || 'Standard')}</div>
+    <div class="pet-modal-info-grid">
+      <div class="pet-modal-rate">
+        <span class="rate-label">EXISTENCE RATE</span>
+        <span class="rate-value">${esc(pet.existence_rate || 'Unknown')}</span>
       </div>
-      <div class="pet-modal-cat">${esc(pet.category || 'Standard')}</div>
-      <div class="pet-modal-info-grid">
-        <div class="pet-modal-rate">
-          <span class="rate-label">EXISTENCE RATE</span>
-          <span class="rate-value">${esc(pet.existence_rate || 'Unknown')}</span>
-        </div>
-        ${pet.demand ? `<div class="pet-modal-rate">${demandHTML}</div>` : ''}
+      ${pet.demand ? `<div class="pet-modal-rate">${demandHTML}</div>` : ''}
+    </div>
+    <div class="pet-modal-info-grid">
+      ${pet.pet_power ? `<div class="pet-modal-rate"><span class="rate-label">⚡ PET POWER</span><span class="rate-value" style="color:var(--gold);">${esc(String(pet.pet_power))}</span></div>` : ''}
+      ${pet.updated_at ? `<div class="pet-modal-rate"><span class="rate-label">✎ LAST EDITED</span><span class="rate-value" style="font-size:.75rem;">${fmtDate(pet.updated_at)}</span></div>` : ''}
+    </div>
+    <div class="pet-stats-section">
+      <div class="pet-stats-label-row">
+        <span class="pet-stats-label">Variant Values</span>
+        <button class="copy-val-btn" onclick="copyToClipboard('${fmtVal(nv)}${isOC(nv) ? '' : ' tokens'}')">📋 Copy</button>
       </div>
-      <div class="pet-modal-info-grid">
-        ${pet.pet_power ? `<div class="pet-modal-rate"><span class="rate-label">⚡ PET POWER</span><span class="rate-value" style="color:var(--gold);">${esc(String(pet.pet_power))}</span></div>` : ''}
-        ${pet.updated_at ? `<div class="pet-modal-rate"><span class="rate-label">✎ LAST EDITED</span><span class="rate-value" style="font-size:.75rem;">${fmtDate(pet.updated_at)}</span></div>` : ''}
+      <div class="stats-grid">
+        ${statCard('s-normal',  '🔵', 'NORMAL',  nv, null,    false)}
+        ${statCard('s-gold',    '⭐', 'GOLD',    gv, goldMult, !pet.has_gold)}
+        ${statCard('s-rainbow', '🌈', 'RAINBOW', rv, rbMult,   !pet.has_rainbow)}
       </div>
-      <div class="pet-stats-section">
-        <div class="pet-stats-label-row">
-          <span class="pet-stats-label">Variant Values</span>
-          <button class="copy-val-btn" onclick="copyToClipboard('${fmtVal(nv)}${isOC(nv)?'':' tokens'}')">📋 Copy</button>
-        </div>
-        <div class="stats-grid">
-          ${statCard('s-normal',  '🔵', 'NORMAL',  nv, null,    false)}
-          ${statCard('s-gold',    '⭐', 'GOLD',    gv, goldMult, !pet.has_gold)}
-          ${statCard('s-rainbow', '🌈', 'RAINBOW', rv, rbMult,   !pet.has_rainbow)}
-        </div>
-      </div>
-      ${pet.notes ? `<div class="pet-modal-notes">📝 ${esc(pet.notes)}</div>` : ''}
-     `<div class="modal-action-row">` +
-  (isPotionPet(pet)
-    ? `<button class="potion-btn-primary" onclick="openPotionPricesModal(window._modalPet)" style="flex:1;">
-         💰 List My Price
-       </button>
-       <button class="potion-btn-secondary" onclick="openSeePricesModal(window._modalPet)" style="flex:1;">
-         👁 See All Prices
-       </button>`
-    : `<button class="modal-add-calc" onclick="askAiAboutPet(window._modalPet)">✦ Ask AI</button>
-       <button class="modal-chart-btn" onclick="toggleModalChart('${esc(pet.id)}')">📈 Price History</button>`
-  ) +
-`</div>` +
+    </div>
+    ${pet.notes ? `<div class="pet-modal-notes">📝 ${esc(pet.notes)}</div>` : ''}
+    <div class="modal-action-row">
+      ${isPotionPet(pet)
+        ? `<button class="potion-btn-primary" onclick="openPotionPricesModal(window._modalPet)" style="flex:1;">
+             💰 List My Price
+           </button>
+           <button class="potion-btn-secondary" onclick="openSeePricesModal(window._modalPet)" style="flex:1;">
+             👁 See All Prices
+           </button>`
+        : `<button class="modal-add-calc" onclick="askAiAboutPet(window._modalPet)">✦ Ask AI</button>
+           <button class="modal-chart-btn" onclick="toggleModalChart('${esc(pet.id)}')">📈 Price History</button>`
+      }
+    </div>
+  </div>`
+);1
 // Only show chart for non-potions
 (!isPotionPet(pet)
   ? `<div id="modal-chart-section" style="display:none;margin-top:1rem;">
@@ -1403,39 +1405,41 @@ function petFormHTML(pet) {
   const demandSelectOpts = demandOpts.map(d =>
     `<option value="${esc(d)}"${p.demand === d ? ' selected' : ''}>${d || '— Not set —'}</option>`
   ).join('');
+
   return `<div class="mform-grid">
-    <div class="field-group"><label>Pet Name *</label><input id="pf-name" type="text" value="${esc(p.name||'')}" placeholder="e.g. Blossom Ninja"/></div>
+    <div class="field-group"><label>Pet Name *</label><input id="pf-name" type="text" value="${esc(p.name || '')}" placeholder="e.g. Blossom Ninja"/></div>
     <div class="field-group"><label>Category</label><select id="pf-cat">
-      ${['standard','limited','exclusive','event'].map(c =>
-        `<option value="${c}"${p.category===c?' selected':''}>${c.charAt(0).toUpperCase()+c.slice(1)}</option>`
+      ${['standard', 'limited', 'exclusive', 'event'].map(c =>
+        `<option value="${c}"${p.category === c ? ' selected' : ''}>${c.charAt(0).toUpperCase() + c.slice(1)}</option>`
       ).join('')}
     </select></div>
-    <div class="field-group" style="grid-column:1/-1;"><label>Image URL</label><input id="pf-img" type="text" value="${esc(p.image_url||'')}" placeholder="https://..."/></div>
-    <div class="field-group" style="grid-column:1/-1;"><label>Existence Rate</label><input id="pf-rate" type="text" value="${esc(p.existence_rate||'')}" placeholder="e.g. 1 in 10,000 or 0.01%"/></div>
-    <div class="field-group"><label>Normal Value</label><input id="pf-nval" type="text" value="${esc(String(p.normal_value||''))}" placeholder="e.g. 5000 or O/C"/></div>
-    <div class="field-group"><label>Gold Value</label><input id="pf-gval" type="text" value="${esc(String(p.gold_value||''))}" placeholder="e.g. 10000 or O/C"/></div>
-    <div class="field-group"><label>Rainbow Value</label><input id="pf-rval" type="text" value="${esc(String(p.rainbow_value||''))}" placeholder="e.g. 20000 or O/C"/></div>
-    <div class="field-group"><label>Pet Power ⚡</label><input id="pf-power" type="text" value="${esc(p.pet_power||'')}" placeholder="e.g. 1500 or 145% or High"/></div>
+    <div class="field-group" style="grid-column:1/-1;"><label>Image URL</label><input id="pf-img" type="text" value="${esc(p.image_url || '')}" placeholder="https://..."/></div>
+    <div class="field-group" style="grid-column:1/-1;"><label>Existence Rate</label><input id="pf-rate" type="text" value="${esc(p.existence_rate || '')}" placeholder="e.g. 1 in 10,000 or 0.01%"/></div>
+    <div class="field-group"><label>Normal Value</label><input id="pf-nval" type="text" value="${esc(String(p.normal_value || ''))}" placeholder="e.g. 5000 or O/C"/></div>
+    <div class="field-group"><label>Gold Value</label><input id="pf-gval" type="text" value="${esc(String(p.gold_value || ''))}" placeholder="e.g. 10000 or O/C"/></div>
+    <div class="field-group"><label>Rainbow Value</label><input id="pf-rval" type="text" value="${esc(String(p.rainbow_value || ''))}" placeholder="e.g. 20000 or O/C"/></div>
+    <div class="field-group"><label>Pet Power ⚡</label><input id="pf-power" type="text" value="${esc(p.pet_power || '')}" placeholder="e.g. 1500 or 145% or High"/></div>
     <div class="field-group"><label>Demand 📊</label><select id="pf-demand">${demandSelectOpts}</select></div>
-`<div class="field-group" id="pf-variant-toggles" style="display:flex;gap:1.5rem;align-items:center;padding-top:.5rem;">
-  <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.88rem;text-transform:none;letter-spacing:0;">
-    <input id="pf-hasgold" type="checkbox"${p.has_gold!==false?' checked':''} style="width:auto;margin:0;accent-color:var(--accent);"/> Has Gold
-  </label>
-  <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.88rem;text-transform:none;letter-spacing:0;">
-    <input id="pf-hasrb" type="checkbox"${p.has_rainbow!==false?' checked':''} style="width:auto;margin:0;accent-color:var(--accent);"/> Has Rainbow
-  </label>
-</div>
-<script>
-  (function(){
-    const cat = document.getElementById('pf-cat');
-    const tog = document.getElementById('pf-variant-toggles');
-    function upd(){ if(tog) tog.style.display = cat?.value==='potion'?'none':'flex'; }
-    if(cat){ cat.addEventListener('change', upd); upd(); }
-  })();
-</script>`
-    <div class="field-group" style="grid-column:1/-1;"><label>Notes (optional)</label><textarea id="pf-notes" placeholder="Any extra info...">${esc(p.notes||'')}</textarea></div>
+    <div class="field-group" id="pf-variant-toggles" style="display:flex;gap:1.5rem;align-items:center;padding-top:.5rem;">
+      <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.88rem;text-transform:none;letter-spacing:0;">
+        <input id="pf-hasgold" type="checkbox"${p.has_gold !== false ? ' checked' : ''} style="width:auto;margin:0;accent-color:var(--accent);"/> Has Gold
+      </label>
+      <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.88rem;text-transform:none;letter-spacing:0;">
+        <input id="pf-hasrb" type="checkbox"${p.has_rainbow !== false ? ' checked' : ''} style="width:auto;margin:0;accent-color:var(--accent);"/> Has Rainbow
+      </label>
+    </div>
+    <script>
+      (function(){
+        const cat = document.getElementById('pf-cat');
+        const tog = document.getElementById('pf-variant-toggles');
+        function upd(){ if(tog) tog.style.display = cat?.value === 'potion' ? 'none' : 'flex'; }
+        if(cat){ cat.addEventListener('change', upd); upd(); }
+      })();
+    <\/script>
+    <div class="field-group" style="grid-column:1/-1;"><label>Notes (optional)</label><textarea id="pf-notes" placeholder="Any extra info...">${esc(p.notes || '')}</textarea></div>
   </div>`;
 }
+
 function getPetFormData() {
   return {
     name:           val('pf-name'),
