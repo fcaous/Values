@@ -489,20 +489,23 @@ function sortPets(list) {
 function applyVariantFilter() {
   const favs = getFavs();
   if      (variantFilter === 'fav')     filteredPets = allPets.filter(p => favs.has(p.id));
-  else if (variantFilter === 'gold')    filteredPets = allPets.filter(p => p.has_gold);
-  else if (variantFilter === 'rainbow') filteredPets = allPets.filter(p => p.has_rainbow);
+  else if (variantFilter === 'gold')    filteredPets = allPets.filter(p => p.has_gold && p.category !== 'potion');
+  else if (variantFilter === 'rainbow') filteredPets = allPets.filter(p => p.has_rainbow && p.category !== 'potion');
+  else if (variantFilter === 'potion')  filteredPets = allPets.filter(p => p.category === 'potion');
   else                                  filteredPets = allPets;
   filteredPets = sortPets(filteredPets);
   setEl('result-count', filteredPets.length + ' result' + (filteredPets.length !== 1 ? 's' : ''));
   renderPetGrid();
 }
+
 function setVariantFilter(f) {
   variantFilter = f;
   document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
-  const map = { all:'ft-all', gold:'ft-gold', rainbow:'ft-rainbow', fav:'ft-fav' };
+  const map = { all:'ft-all', gold:'ft-gold', rainbow:'ft-rainbow', fav:'ft-fav', potion:'ft-potion' };
   document.getElementById(map[f])?.classList.add('active');
   applyVariantFilter();
 }
+
 
 function renderPetGrid() {
   const grid = document.getElementById('pet-grid');
@@ -521,7 +524,12 @@ function renderPetGrid() {
 
   grid.innerHTML = '';
   filteredPets.forEach(pet => {
-    const rawVal = variantFilter === 'gold' ? pet.gold_value : variantFilter === 'rainbow' ? pet.rainbow_value : pet.normal_value;
+    const isPotion = isPotionPet(pet);
+    const rawVal   = isPotion
+  ? pet.normal_value
+  : variantFilter === 'gold'    ? pet.gold_value
+  : variantFilter === 'rainbow' ? pet.rainbow_value
+  : pet.normal_value;
     const faved  = favs.has(pet.id);
     const oc     = isOC(rawVal);
     const imgContent = pet.image_url
@@ -550,11 +558,12 @@ function renderPetGrid() {
             `${demandCfg.icon} ${esc(pet.demand)}</div>` : '') +
         `</div>` +
         (showEdited && pet.updated_at ? `<div class="pet-last-edited">✎ ${fmtDateShort(pet.updated_at)}</div>` : '') +
-        `<div class="pet-variants">` +
-          (oc ? '<span class="pv-badge oc">O/C</span>' : '') +
-          (!oc && pet.has_gold    ? '<span class="pv-badge gold">GOLD</span>'    : '') +
-          (!oc && pet.has_rainbow ? '<span class="pv-badge rainbow">RAINBOW</span>' : '') +
-        `</div>` +
+       `<div class="pet-variants">` +
+  (isPotion ? '<span class="pv-badge potion">POTION</span>' : '') +
+  (!isPotion && oc ? '<span class="pv-badge oc">O/C</span>' : '') +
+  (!isPotion && !oc && pet.has_gold    ? '<span class="pv-badge gold">GOLD</span>'    : '') +
+  (!isPotion && !oc && pet.has_rainbow ? '<span class="pv-badge rainbow">RAINBOW</span>' : '') +
+`</div>`
       `</div>`;
     grid.appendChild(card);
   });
@@ -637,10 +646,25 @@ function openPetModal(pet) {
         </div>
       </div>
       ${pet.notes ? `<div class="pet-modal-notes">📝 ${esc(pet.notes)}</div>` : ''}
-      <div class="modal-action-row">
-        <button class="modal-add-calc" onclick="askAiAboutPet(window._modalPet)">✦ Ask AI</button>
-        <button class="modal-chart-btn" onclick="toggleModalChart('${esc(pet.id)}')">📈 Price History</button>
-      </div>
+     `<div class="modal-action-row">` +
+  (isPotionPet(pet)
+    ? `<button class="potion-btn-primary" onclick="openPotionPricesModal(window._modalPet)" style="flex:1;">
+         💰 List My Price
+       </button>
+       <button class="potion-btn-secondary" onclick="openSeePricesModal(window._modalPet)" style="flex:1;">
+         👁 See All Prices
+       </button>`
+    : `<button class="modal-add-calc" onclick="askAiAboutPet(window._modalPet)">✦ Ask AI</button>
+       <button class="modal-chart-btn" onclick="toggleModalChart('${esc(pet.id)}')">📈 Price History</button>`
+  ) +
+`</div>` +
+// Only show chart for non-potions
+(!isPotionPet(pet)
+  ? `<div id="modal-chart-section" style="display:none;margin-top:1rem;">
+       <div id="modal-chart-content"><div class="chart-loading">Loading chart...</div></div>
+     </div>`
+  : ''
+),
       <div id="modal-chart-section" style="display:none;margin-top:1rem;">
         <div id="modal-chart-content"><div class="chart-loading">Loading chart...</div></div>
       </div>
@@ -1393,14 +1417,22 @@ function petFormHTML(pet) {
     <div class="field-group"><label>Rainbow Value</label><input id="pf-rval" type="text" value="${esc(String(p.rainbow_value||''))}" placeholder="e.g. 20000 or O/C"/></div>
     <div class="field-group"><label>Pet Power ⚡</label><input id="pf-power" type="text" value="${esc(p.pet_power||'')}" placeholder="e.g. 1500 or 145% or High"/></div>
     <div class="field-group"><label>Demand 📊</label><select id="pf-demand">${demandSelectOpts}</select></div>
-    <div class="field-group" style="display:flex;gap:1.5rem;align-items:center;padding-top:.5rem;">
-      <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.88rem;text-transform:none;letter-spacing:0;">
-        <input id="pf-hasgold" type="checkbox"${p.has_gold!==false?' checked':''} style="width:auto;margin:0;accent-color:var(--accent);"/> Has Gold
-      </label>
-      <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.88rem;text-transform:none;letter-spacing:0;">
-        <input id="pf-hasrb" type="checkbox"${p.has_rainbow!==false?' checked':''} style="width:auto;margin:0;accent-color:var(--accent);"/> Has Rainbow
-      </label>
-    </div>
+`<div class="field-group" id="pf-variant-toggles" style="display:flex;gap:1.5rem;align-items:center;padding-top:.5rem;">
+  <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.88rem;text-transform:none;letter-spacing:0;">
+    <input id="pf-hasgold" type="checkbox"${p.has_gold!==false?' checked':''} style="width:auto;margin:0;accent-color:var(--accent);"/> Has Gold
+  </label>
+  <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.88rem;text-transform:none;letter-spacing:0;">
+    <input id="pf-hasrb" type="checkbox"${p.has_rainbow!==false?' checked':''} style="width:auto;margin:0;accent-color:var(--accent);"/> Has Rainbow
+  </label>
+</div>
+<script>
+  (function(){
+    const cat = document.getElementById('pf-cat');
+    const tog = document.getElementById('pf-variant-toggles');
+    function upd(){ if(tog) tog.style.display = cat?.value==='potion'?'none':'flex'; }
+    if(cat){ cat.addEventListener('change', upd); upd(); }
+  })();
+</script>`
     <div class="field-group" style="grid-column:1/-1;"><label>Notes (optional)</label><textarea id="pf-notes" placeholder="Any extra info...">${esc(p.notes||'')}</textarea></div>
   </div>`;
 }
@@ -1618,3 +1650,266 @@ document.addEventListener('DOMContentLoaded', () => {
   loadPets();
   getAiUserId();
 });
+
+
+// ══════════════════════════════════════════
+//  POTION PRICES
+// ══════════════════════════════════════════
+
+function isPotionPet(pet) {
+  return pet && pet.category === 'potion';
+}
+
+function parsePriceDisplay(price) {
+  if (!price) return '?';
+  const s = String(price).trim();
+  const n = (() => {
+    if (/^[0-9]*\.?[0-9]+[Kk]$/.test(s)) return parseFloat(s) * 1000;
+    if (/^[0-9]*\.?[0-9]+[Mm]$/.test(s)) return parseFloat(s) * 1000000;
+    if (/^[0-9]*\.?[0-9]+[Bb]$/.test(s)) return parseFloat(s) * 1000000000;
+    if (/^[0-9]*\.?[0-9]+$/.test(s))     return parseFloat(s);
+    return null;
+  })();
+  if (n === null) return s;
+  return fmtNum(n);
+}
+
+async function openPotionPricesModal(pet) {
+  showModal(
+    `<button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="potion-modal">
+      <div class="potion-modal-header">
+        ${pet.image_url ? `<img src="${esc(pet.image_url)}" class="potion-modal-img" onerror="this.style.display='none'"/>` : '<span style="font-size:3rem;">🧪</span>'}
+        <div>
+          <div class="potion-modal-name">${esc(pet.name)}</div>
+          <div class="potion-modal-cat">Potion</div>
+          ${pet.existence_rate ? `<div class="potion-modal-rate">${esc(pet.existence_rate)}</div>` : ''}
+        </div>
+      </div>
+
+      <div class="potion-modal-value-row">
+        <div class="potion-modal-value-label">BASE VALUE</div>
+        <div class="potion-modal-value">${fmtVal(pet.normal_value)} <span class="val-unit">tokens</span></div>
+      </div>
+
+      ${pet.notes ? `<div class="pet-modal-notes">📝 ${esc(pet.notes)}</div>` : ''}
+
+      <div class="potion-btn-row">
+        <button class="potion-btn-primary" onclick="openListPriceModal(window._modalPet)">
+          💰 List My Price
+        </button>
+        <button class="potion-btn-secondary" onclick="openSeePricesModal(window._modalPet)">
+          👁 See All Prices
+        </button>
+      </div>
+    </div>`
+  );
+  window._modalPet = pet;
+}
+
+async function openListPriceModal(pet) {
+  showModal(
+    `<button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="potion-modal">
+      <div class="potion-form-title">💰 List Your Price</div>
+      <div class="potion-form-sub">for <strong style="color:var(--accent);">${esc(pet.name)}</strong></div>
+
+      <div class="field-group" style="margin-top:1.2rem;">
+        <label>DISCORD USERNAME</label>
+        <input id="pp-discord" type="text" placeholder="YourUsername (@ added automatically)"/>
+        <div class="field-hint">Your Discord tag — used to identify your listing</div>
+      </div>
+
+      <div class="field-group">
+        <label>YOUR PRICE</label>
+        <input id="pp-price" type="text" placeholder="e.g. 5000, 1.5K, 2M"/>
+        <div class="field-hint">How much you are selling/buying this potion for in tokens</div>
+      </div>
+
+      <div id="pp-err" class="form-error" style="display:none;"></div>
+      <div id="pp-success" style="display:none;background:rgba(74,222,122,.1);border:1.5px solid rgba(74,222,122,.3);
+           border-radius:8px;padding:.65rem .9rem;color:var(--success);font-size:.9rem;margin-top:.5rem;"></div>
+
+      <div class="potion-btn-row" style="margin-top:1rem;">
+        <button class="potion-btn-secondary" onclick="openPotionPricesModal(window._modalPet)">← Back</button>
+        <button class="potion-btn-primary" id="pp-submit-btn" onclick="submitPotionPrice(window._modalPet)">
+          ✔ Submit Price
+        </button>
+      </div>
+
+      <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border2);">
+        <div style="font-size:.78rem;color:var(--text-muted);margin-bottom:.5rem;">
+          Want to remove your listing? Enter your username and click below.
+        </div>
+        <button class="potion-btn-danger" onclick="deletePotionPrice(window._modalPet)">
+          🗑 Remove My Listing
+        </button>
+      </div>
+    </div>`
+  );
+  window._modalPet = pet;
+  // Enter key
+  document.getElementById('pp-price')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitPotionPrice(pet);
+  });
+}
+
+async function submitPotionPrice(pet) {
+  const discord = document.getElementById('pp-discord')?.value.trim();
+  const price   = document.getElementById('pp-price')?.value.trim();
+  const err     = document.getElementById('pp-err');
+  const success = document.getElementById('pp-success');
+  const btn     = document.getElementById('pp-submit-btn');
+  err.style.display     = 'none';
+  success.style.display = 'none';
+
+  if (!discord) { err.textContent = 'Enter your Discord username'; err.style.display = 'block'; return; }
+  if (!price)   { err.textContent = 'Enter a price';               err.style.display = 'block'; return; }
+
+  btn.disabled    = true;
+  btn.textContent = 'Submitting...';
+
+  try {
+    const res = await apiFetch('POST', `/api/potions/${encodeURIComponent(pet.id)}/prices`, {
+      discord_user: discord,
+      price,
+      pet_name: pet.name,
+    });
+    if (res.success) {
+      success.textContent   = res.message;
+      success.style.display = 'block';
+      document.getElementById('pp-price').value = '';
+      toast(res.updated ? '✔ Price updated!' : '✔ Price listed!');
+    } else throw new Error(res.error);
+  } catch (e) {
+    err.textContent   = e.message;
+    err.style.display = 'block';
+  }
+  btn.disabled    = false;
+  btn.textContent = '✔ Submit Price';
+}
+
+async function deletePotionPrice(pet) {
+  const discord = document.getElementById('pp-discord')?.value.trim();
+  const err     = document.getElementById('pp-err');
+  const success = document.getElementById('pp-success');
+  err.style.display     = 'none';
+  success.style.display = 'none';
+
+  if (!discord) { err.textContent = 'Enter your Discord username to remove your listing'; err.style.display = 'block'; return; }
+  if (!confirm(`Remove your price listing for "${pet.name}"?`)) return;
+
+  try {
+    const res = await apiFetch('DELETE', `/api/potions/${encodeURIComponent(pet.id)}/prices`, {
+      discord_user: discord,
+    });
+    if (res.success) {
+      success.textContent   = '✔ Your listing has been removed';
+      success.style.display = 'block';
+      toast('Listing removed');
+    } else throw new Error(res.error);
+  } catch (e) {
+    err.textContent   = e.message;
+    err.style.display = 'block';
+  }
+}
+
+async function openSeePricesModal(pet) {
+  showModal(
+    `<button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="potion-modal">
+      <div class="potion-form-title">👁 All Prices</div>
+      <div class="potion-form-sub">for <strong style="color:var(--accent);">${esc(pet.name)}</strong></div>
+      <div id="see-prices-content" style="margin-top:1rem;">
+        <div class="chart-loading">Loading prices...</div>
+      </div>
+      <div class="potion-btn-row" style="margin-top:1rem;">
+        <button class="potion-btn-secondary" onclick="openPotionPricesModal(window._modalPet)">← Back</button>
+        <button class="potion-btn-primary"   onclick="openListPriceModal(window._modalPet)">💰 List My Price</button>
+      </div>
+    </div>`
+  );
+  window._modalPet = pet;
+
+  try {
+    const prices = await apiFetch('GET', `/api/potions/${encodeURIComponent(pet.id)}/prices`);
+    const content = document.getElementById('see-prices-content');
+    if (!content) return;
+
+    if (!prices.length) {
+      content.innerHTML = '<div class="chart-empty">No prices listed yet — be the first!</div>';
+      return;
+    }
+
+    // Calculate approximate average
+    const nums = prices
+      .map(p => parsePriceToNum(p.price))
+      .filter(n => n !== null && n > 0);
+    const avg  = nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : null;
+    const med  = nums.length ? [...nums].sort((a, b) => a - b)[Math.floor(nums.length / 2)] : null;
+
+    let html = '';
+
+    // Stats row
+    if (nums.length > 0) {
+      html += `<div class="potion-price-stats">
+        <div class="pps-stat">
+          <div class="pps-stat-n">${fmtNum(avg)}</div>
+          <div class="pps-stat-l">AVG PRICE</div>
+        </div>
+        <div class="pps-stat">
+          <div class="pps-stat-n">${fmtNum(med)}</div>
+          <div class="pps-stat-l">MEDIAN</div>
+        </div>
+        <div class="pps-stat">
+          <div class="pps-stat-n">${prices.length}</div>
+          <div class="pps-stat-l">LISTINGS</div>
+        </div>
+        <div class="pps-stat">
+          <div class="pps-stat-n">${fmtNum(Math.min(...nums))}</div>
+          <div class="pps-stat-l">LOWEST</div>
+        </div>
+      </div>`;
+    }
+
+    // Price list
+    html += '<div class="potion-prices-list">';
+    prices.forEach(p => {
+      const timeAgo = fmtDateShort(p.updated_at);
+      html += `<div class="potion-price-row">
+        <div class="ppr-user">${esc(p.discord_user)}</div>
+        <div class="ppr-price">${esc(parsePriceDisplay(p.price))} <span class="val-unit">tokens</span></div>
+        <div class="ppr-time">${timeAgo}</div>
+        ${adminSession ? `<button class="btn-sm danger" onclick="adminDeletePotionPrice(${p.id},window._modalPet)">🗑</button>` : ''}
+      </div>`;
+    });
+    html += '</div>';
+
+    content.innerHTML = html;
+  } catch (e) {
+    const content = document.getElementById('see-prices-content');
+    if (content) content.innerHTML = `<div class="chart-empty" style="color:var(--danger);">Failed: ${esc(e.message)}</div>`;
+  }
+}
+
+async function adminDeletePotionPrice(priceId, pet) {
+  if (!adminSession) return;
+  if (!confirm('Delete this price listing?')) return;
+  try {
+    await apiFetch('DELETE', `/api/admin/potion-prices/${priceId}`, null, {
+      'x-admin-token': adminSession.token,
+    });
+    toast('Price deleted');
+    openSeePricesModal(pet);
+  } catch (e) { toast('⚠ ' + e.message); }
+}
+
+function parsePriceToNum(price) {
+  if (!price) return null;
+  const s = String(price).trim();
+  if (/^[0-9]*\.?[0-9]+[Kk]$/.test(s)) return parseFloat(s) * 1000;
+  if (/^[0-9]*\.?[0-9]+[Mm]$/.test(s)) return parseFloat(s) * 1000000;
+  if (/^[0-9]*\.?[0-9]+[Bb]$/.test(s)) return parseFloat(s) * 1000000000;
+  if (/^[0-9]*\.?[0-9]+$/.test(s))     return parseFloat(s);
+  return null;
+}
