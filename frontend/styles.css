@@ -411,3 +411,87 @@ body.density-spacious .pet-grid{grid-template-columns:repeat(auto-fill,minmax(23
   .ai-messages{padding:3rem 1rem 1rem;}
   .ai-suggestion-grid{grid-template-columns:1fr;}
 }
+
+/* ── AI chat item time (maps to .ai-chat-meta in old CSS) ── */
+.ai-chat-item-time {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .6rem;
+  color: var(--text-subtle);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── AI chat delete button (maps to .ai-chat-delete) ── */
+.ai-chat-del-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-subtle);
+  font-size: .75rem;
+  padding: 2px 5px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: all .12s;
+}
+.ai-chat-item:hover .ai-chat-del-btn { opacity: 1; }
+.ai-chat-del-btn:hover {
+  color: var(--danger);
+  background: rgba(240,112,112,.12);
+}
+
+/* ── AI suggestion chips (used in welcome screen) ── */
+.ai-welcome-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  justify-content: center;
+  margin-top: .5rem;
+}
+.ai-chip {
+  background: var(--card);
+  border: 1.5px solid var(--border-card);
+  color: var(--text-muted);
+  border-radius: 20px;
+  padding: .45rem .9rem;
+  font-size: .85rem;
+  cursor: pointer;
+  transition: .15s;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+}
+.ai-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-pale);
+}
+
+/* ── Chart dot hover ── */
+.chart-dot { cursor: pointer; }
+.chart-dot-pulse {
+  animation: chartPulse 2s ease-in-out infinite;
+}
+@keyframes chartPulse {
+  0%,100% { opacity: .12; }
+  50%      { opacity: .25; }
+}
+
+/* ── Ask AI button in pet modal ── */
+.modal-add-calc {
+  flex: 1;
+  padding: .72rem .5rem;
+  background: var(--accent-dim);
+  border: 1.5px solid var(--accent);
+  border-radius: 9px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .95rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--accent);
+  cursor: pointer;
+  transition: all .15s;
+}
+.modal-add-calc:hover {
+  background: var(--accent);
+  color: #fff;
+}
