@@ -495,3 +495,229 @@ body.density-spacious .pet-grid{grid-template-columns:repeat(auto-fill,minmax(23
   background: var(--accent);
   color: #fff;
 }
+
+/* ── POTION CATEGORY ─────────────────────────────────────────────── */
+.pv-badge.potion {
+  background: rgba(159,114,240,.15);
+  color: #c4abfc;
+  border-color: rgba(159,114,240,.35);
+  font-weight: 900;
+}
+.ftab.potion.active {
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  border-color: #a78bfa;
+  color: #fff;
+}
+
+/* Potion modal */
+.potion-modal {
+  padding: 1.4rem;
+}
+.potion-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+.potion-modal-img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: var(--accent-pale);
+  border: 1.5px solid var(--border2);
+  padding: .4rem;
+}
+.potion-modal-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.1;
+}
+.potion-modal-cat {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .7rem;
+  color: #c4abfc;
+  background: rgba(159,114,240,.12);
+  border: 1px solid rgba(159,114,240,.3);
+  border-radius: 5px;
+  padding: 2px 8px;
+  display: inline-block;
+  margin-top: .3rem;
+}
+.potion-modal-rate {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .7rem;
+  color: var(--accent);
+  margin-top: .3rem;
+}
+.potion-modal-value-row {
+  background: var(--card-alt);
+  border: 1.5px solid var(--border2);
+  border-radius: 10px;
+  padding: .85rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.potion-modal-value-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: var(--text-muted);
+}
+.potion-modal-value {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #c4abfc;
+}
+.potion-form-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: .2rem;
+}
+.potion-form-sub {
+  font-size: .9rem;
+  color: var(--text-muted);
+  margin-bottom: .5rem;
+}
+.potion-btn-row {
+  display: flex;
+  gap: .6rem;
+  margin-top: .8rem;
+}
+.potion-btn-primary {
+  flex: 1;
+  padding: .72rem .5rem;
+  background: rgba(159,114,240,.2);
+  border: 1.5px solid rgba(159,114,240,.4);
+  border-radius: 9px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .95rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: #c4abfc;
+  cursor: pointer;
+  transition: all .15s;
+}
+.potion-btn-primary:hover {
+  background: rgba(159,114,240,.35);
+  border-color: #a78bfa;
+  color: #fff;
+}
+.potion-btn-secondary {
+  flex: 1;
+  padding: .72rem .5rem;
+  background: var(--card-alt);
+  border: 1.5px solid var(--border2);
+  border-radius: 9px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .95rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all .15s;
+}
+.potion-btn-secondary:hover {
+  border-color: var(--accent-med);
+  color: var(--accent);
+}
+.potion-btn-danger {
+  width: 100%;
+  padding: .55rem;
+  background: rgba(240,112,112,.08);
+  border: 1.5px solid rgba(240,112,112,.25);
+  border-radius: 9px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--danger);
+  cursor: pointer;
+  transition: all .15s;
+}
+.potion-btn-danger:hover {
+  background: rgba(240,112,112,.18);
+  border-color: var(--danger);
+}
+
+/* Price stats */
+.potion-price-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: .5rem;
+  margin-bottom: 1rem;
+}
+.pps-stat {
+  background: var(--card-alt);
+  border: 1.5px solid var(--border2);
+  border-radius: 9px;
+  padding: .6rem .5rem;
+  text-align: center;
+}
+.pps-stat-n {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #c4abfc;
+  line-height: 1;
+}
+.pps-stat-l {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .58rem;
+  color: var(--text-muted);
+  margin-top: .2rem;
+  letter-spacing: .06em;
+}
+
+/* Price list */
+.potion-prices-list {
+  border: 1.5px solid var(--border2);
+  border-radius: 10px;
+  overflow: hidden;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.potion-price-row {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .65rem 1rem;
+  border-bottom: 1px solid var(--border2);
+  font-size: .88rem;
+  transition: background .12s;
+}
+.potion-price-row:last-child { border-bottom: none; }
+.potion-price-row:hover { background: var(--accent-pale); }
+.ppr-user {
+  flex: 1;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .78rem;
+  color: var(--accent-light);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ppr-price {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #c4abfc;
+  flex-shrink: 0;
+}
+.ppr-time {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .65rem;
+  color: var(--text-subtle);
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .potion-price-stats { grid-template-columns: repeat(2, 1fr); }
+}
