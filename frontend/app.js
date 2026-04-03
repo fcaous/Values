@@ -3,13 +3,13 @@
 const API = window.location.origin;
 
 // ── State ──────────────────────────────────────────────────────────
-let allPets       = [];
-let filteredPets  = [];
-let variantFilter = 'all';
-let adminSession  = null;
-let ownerPw       = '';
-let ownerAuthed   = false;
-let adminPets     = [];
+let allPets        = [];
+let filteredPets   = [];
+let variantFilter  = 'all';
+let adminSession   = null;
+let ownerPw        = '';
+let ownerAuthed    = false;
+let adminPets      = [];
 let searchDebounce = null;
 
 // ── AI State ───────────────────────────────────────────────────────
@@ -78,16 +78,16 @@ function loadSettings() {
 }
 function saveSettings() {
   const g = id => document.getElementById(id);
-  if (g('set-sort'))        settings.sortOrder        = g('set-sort').value;
-  if (g('set-variant'))     settings.defaultVariant   = g('set-variant').value;
-  if (g('set-showrate'))    settings.showRate         = g('set-showrate').checked;
-  if (g('set-showcat'))     settings.showCat          = g('set-showcat').checked;
-  if (g('set-showpower'))   settings.showPower        = g('set-showpower').checked;
-  if (g('set-showdemand'))  settings.showDemand       = g('set-showdemand').checked;
-  if (g('set-showedited'))  settings.showLastEdited   = g('set-showedited').checked;
-  if (g('set-animations'))  settings.animationsEnabled = g('set-animations').checked;
-  if (g('set-compactadmin'))settings.compactAdminView = g('set-compactadmin').checked;
-  if (g('set-hoverval'))    settings.showValueOnHover = g('set-hoverval').checked;
+  if (g('set-sort'))         settings.sortOrder         = g('set-sort').value;
+  if (g('set-variant'))      settings.defaultVariant    = g('set-variant').value;
+  if (g('set-showrate'))     settings.showRate          = g('set-showrate').checked;
+  if (g('set-showcat'))      settings.showCat           = g('set-showcat').checked;
+  if (g('set-showpower'))    settings.showPower         = g('set-showpower').checked;
+  if (g('set-showdemand'))   settings.showDemand        = g('set-showdemand').checked;
+  if (g('set-showedited'))   settings.showLastEdited    = g('set-showedited').checked;
+  if (g('set-animations'))   settings.animationsEnabled = g('set-animations').checked;
+  if (g('set-compactadmin')) settings.compactAdminView  = g('set-compactadmin').checked;
+  if (g('set-hoverval'))     settings.showValueOnHover  = g('set-hoverval').checked;
   try { localStorage.setItem('csu_settings', JSON.stringify(settings)); } catch {}
   renderPetGrid();
 }
@@ -100,18 +100,18 @@ function resetSettings() {
 }
 function applySettingsToUI() {
   const g = id => document.getElementById(id);
-  if (g('set-density'))     g('set-density').value       = settings.gridDensity;
-  if (g('set-sort'))        g('set-sort').value          = settings.sortOrder;
-  if (g('set-variant'))     g('set-variant').value       = settings.defaultVariant;
-  if (g('set-showrate'))    g('set-showrate').checked    = settings.showRate;
-  if (g('set-showcat'))     g('set-showcat').checked     = settings.showCat;
-  if (g('set-showpower'))   g('set-showpower').checked   = settings.showPower;
-  if (g('set-showdemand'))  g('set-showdemand').checked  = settings.showDemand;
-  if (g('set-showedited'))  g('set-showedited').checked  = settings.showLastEdited;
-  if (g('set-animations'))  g('set-animations').checked  = settings.animationsEnabled;
-  if (g('set-compactadmin'))g('set-compactadmin').checked= settings.compactAdminView;
-  if (g('set-hoverval'))    g('set-hoverval').checked    = settings.showValueOnHover;
-  if (g('sort-filter'))     g('sort-filter').value       = settings.sortOrder;
+  if (g('set-density'))      g('set-density').value        = settings.gridDensity;
+  if (g('set-sort'))         g('set-sort').value           = settings.sortOrder;
+  if (g('set-variant'))      g('set-variant').value        = settings.defaultVariant;
+  if (g('set-showrate'))     g('set-showrate').checked     = settings.showRate;
+  if (g('set-showcat'))      g('set-showcat').checked      = settings.showCat;
+  if (g('set-showpower'))    g('set-showpower').checked    = settings.showPower;
+  if (g('set-showdemand'))   g('set-showdemand').checked   = settings.showDemand;
+  if (g('set-showedited'))   g('set-showedited').checked   = settings.showLastEdited;
+  if (g('set-animations'))   g('set-animations').checked   = settings.animationsEnabled;
+  if (g('set-compactadmin')) g('set-compactadmin').checked = settings.compactAdminView;
+  if (g('set-hoverval'))     g('set-hoverval').checked     = settings.showValueOnHover;
+  if (g('sort-filter'))      g('sort-filter').value        = settings.sortOrder;
   document.querySelectorAll('.accent-swatch').forEach(s =>
     s.classList.toggle('active', s.dataset.accent === settings.accentColor));
   const nv = g('nav-version'), vd = g('settings-ver-display');
@@ -155,7 +155,7 @@ function toggleFav(id, e) {
 }
 function updateFavCount() {
   const el = document.getElementById('ft-fav-count');
-  const c = getFavs().size;
+  const c  = getFavs().size;
   if (el) el.textContent = c > 0 ? ' ' + c : '';
 }
 
@@ -195,8 +195,8 @@ function fmtDateShort(iso) {
   if (!iso) return '';
   const d = new Date(iso), now = new Date(), diff = now - d;
   if (diff < 60000)     return 'just now';
-  if (diff < 3600000)   return Math.floor(diff/60000) + 'm ago';
-  if (diff < 86400000)  return Math.floor(diff/3600000) + 'h ago';
+  if (diff < 3600000)   return Math.floor(diff/60000)   + 'm ago';
+  if (diff < 86400000)  return Math.floor(diff/3600000)  + 'h ago';
   if (diff < 604800000) return Math.floor(diff/86400000) + 'd ago';
   return d.toLocaleDateString([], { month:'short', day:'numeric' });
 }
@@ -205,7 +205,7 @@ function todayISO() { return new Date().toISOString().slice(0, 16); }
 async function apiFetch(method, path, body, headers = {}) {
   const opts = { method, headers: { 'Content-Type': 'application/json', ...headers } };
   if (body) opts.body = JSON.stringify(body);
-  const res = await fetch(API + path, opts);
+  const res  = await fetch(API + path, opts);
   const data = await res.json();
   if (!res.ok && data.error) throw new Error(data.error);
   return data;
@@ -272,23 +272,22 @@ function buildChartSVG(points, width, height) {
   const w   = width  - pad.left - pad.right;
   const h   = height - pad.top  - pad.bottom;
 
-  const nums    = validPoints.map(p => p.num);
-  const minVal  = Math.min(...nums);
-  const maxVal  = Math.max(...nums);
-  const padding = (maxVal - minVal) * 0.12 || maxVal * 0.1 || 100;
-  const lo      = minVal - padding;
-  const hi      = maxVal + padding;
+  const nums     = validPoints.map(p => p.num);
+  const minVal   = Math.min(...nums);
+  const maxVal   = Math.max(...nums);
+  const padding  = (maxVal - minVal) * 0.12 || maxVal * 0.1 || 100;
+  const lo       = minVal - padding;
+  const hi       = maxVal + padding;
   const valRange = hi - lo || 1;
 
-  const minDate  = validPoints[0].date.getTime();
-  const maxDate  = validPoints[validPoints.length - 1].date.getTime();
+  const minDate   = validPoints[0].date.getTime();
+  const maxDate   = validPoints[validPoints.length - 1].date.getTime();
   const dateRange = maxDate - minDate || 1;
   const spanDays  = (maxDate - minDate) / 86400000;
 
-  const px = d  => pad.left + ((d.getTime() - minDate) / dateRange) * w;
-  const py = n  => pad.top  + (1 - (n - lo) / valRange) * h;
+  const px = d => pad.left + ((d.getTime() - minDate) / dateRange) * w;
+  const py = n => pad.top  + (1 - (n - lo) / valRange) * h;
 
-  // ── Smooth bezier path ──────────────────────────────────────────
   function smoothPath(pts) {
     if (pts.length < 2) return '';
     let d = `M ${px(pts[0].date).toFixed(2)},${py(pts[0].num).toFixed(2)}`;
@@ -309,7 +308,6 @@ function buildChartSVG(points, width, height) {
     ` L ${px(lastPt.date).toFixed(2)},${(pad.top + h).toFixed(2)}` +
     ` L ${pad.left},${(pad.top + h).toFixed(2)} Z`;
 
-  // ── Y Grid + labels (5 ticks) ───────────────────────────────────
   const gradId = 'cg' + Math.random().toString(36).slice(2, 7);
   let yHTML = '';
   for (let i = 0; i <= 4; i++) {
@@ -322,7 +320,6 @@ function buildChartSVG(points, width, height) {
       font-family="'Share Tech Mono',monospace">${fmtVal(v)}</text>`;
   }
 
-  // ── X labels (max 6) ────────────────────────────────────────────
   let xHTML = '';
   const step = Math.max(1, Math.ceil(validPoints.length / 6));
   validPoints.forEach((p, i) => {
@@ -336,17 +333,16 @@ function buildChartSVG(points, width, height) {
       fill="#4a6380" font-size="10.5" font-family="'Share Tech Mono',monospace">${label}</text>`;
   });
 
-  // ── Dots ────────────────────────────────────────────────────────
   let dotsHTML = '';
   validPoints.forEach((p, i) => {
-    const cx = px(p.date).toFixed(2), cy = py(p.num).toFixed(2);
+    const cx       = px(p.date).toFixed(2), cy = py(p.num).toFixed(2);
     const tipDate  = p.date.toLocaleDateString([], { month:'short', day:'numeric', year:'numeric' });
     const tipLabel = p.label ? ` · ${p.label}` : '';
     const isLast   = i === validPoints.length - 1;
     dotsHTML += `
       <circle cx="${cx}" cy="${cy}" r="${isLast ? 6 : 5}"
         fill="${isLast ? 'var(--accent)' : 'var(--card)'}"
-        stroke="var(--accent)" stroke-width="${isLast ? 2.5 : 2.5}" class="chart-dot">
+        stroke="var(--accent)" stroke-width="2.5" class="chart-dot">
         <title>${fmtVal(p.token_value)} tokens — ${tipDate}${tipLabel}</title>
       </circle>`;
     if (isLast) {
@@ -355,16 +351,14 @@ function buildChartSVG(points, width, height) {
     }
   });
 
-  // ── Latest value label ──────────────────────────────────────────
-  const lx = parseFloat(px(lastPt.date).toFixed(2));
-  const ly = parseFloat(py(lastPt.num).toFixed(2));
+  const lx          = parseFloat(px(lastPt.date).toFixed(2));
+  const ly          = parseFloat(py(lastPt.num).toFixed(2));
   const labelAnchor = lx + 60 > pad.left + w ? 'end' : 'start';
   const labelOffset = labelAnchor === 'end' ? -10 : 10;
-  const labelHTML = `<text x="${(lx + labelOffset).toFixed(1)}" y="${(ly - 11).toFixed(1)}"
+  const labelHTML   = `<text x="${(lx + labelOffset).toFixed(1)}" y="${(ly - 11).toFixed(1)}"
     text-anchor="${labelAnchor}" fill="var(--accent)" font-size="12"
     font-family="'Share Tech Mono',monospace" font-weight="700">${fmtVal(lastPt.token_value)}</text>`;
 
-  // ── Trend indicator ─────────────────────────────────────────────
   let trendHTML = '';
   if (validPoints.length >= 2) {
     const first = validPoints[0].num, last = lastPt.num;
@@ -390,28 +384,18 @@ function buildChartSVG(points, width, height) {
         <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
       </filter>
     </defs>
-
     ${trendHTML}
     ${yHTML}
-
-    <!-- Axes -->
     <line x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${pad.top + h}"
       stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
     <line x1="${pad.left}" y1="${pad.top + h}" x2="${pad.left + w}" y2="${pad.top + h}"
       stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
-
-    <!-- Area fill -->
     <path d="${areaPath}" fill="url(#${gradId})"/>
-
-    <!-- Line (shadow) -->
     <path d="${linePath}" fill="none" stroke="var(--accent)" stroke-width="4"
       stroke-linejoin="round" stroke-linecap="round" opacity="0.18"/>
-
-    <!-- Line (main) -->
     <path d="${linePath}" fill="none" stroke="var(--accent)" stroke-width="2.5"
       stroke-linejoin="round" stroke-linecap="round"
       filter="url(#glow-${gradId})"/>
-
     ${xHTML}
     ${labelHTML}
     ${dotsHTML}
@@ -474,7 +458,7 @@ function onSortChange() {
   applyVariantFilter();
 }
 function sortPets(list) {
-  const order = getSortOrder(), copy = [...list];
+  const order  = getSortOrder(), copy = [...list];
   const getRaw = p => variantFilter === 'gold' ? p.gold_value : variantFilter === 'rainbow' ? p.rainbow_value : p.normal_value;
   const getNum = p => parseFloat(getRaw(p)) || 0;
   const ocPets = copy.filter(p =>  isOC(getRaw(p)));
@@ -497,7 +481,6 @@ function applyVariantFilter() {
   setEl('result-count', filteredPets.length + ' result' + (filteredPets.length !== 1 ? 's' : ''));
   renderPetGrid();
 }
-
 function setVariantFilter(f) {
   variantFilter = f;
   document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
@@ -505,7 +488,6 @@ function setVariantFilter(f) {
   document.getElementById(map[f])?.classList.add('active');
   applyVariantFilter();
 }
-
 
 function renderPetGrid() {
   const grid = document.getElementById('pet-grid');
@@ -526,12 +508,12 @@ function renderPetGrid() {
   filteredPets.forEach(pet => {
     const isPotion = isPotionPet(pet);
     const rawVal   = isPotion
-  ? pet.normal_value
-  : variantFilter === 'gold'    ? pet.gold_value
-  : variantFilter === 'rainbow' ? pet.rainbow_value
-  : pet.normal_value;
-    const faved  = favs.has(pet.id);
-    const oc     = isOC(rawVal);
+      ? pet.normal_value
+      : variantFilter === 'gold'    ? pet.gold_value
+      : variantFilter === 'rainbow' ? pet.rainbow_value
+      : pet.normal_value;
+    const faved     = favs.has(pet.id);
+    const oc        = isOC(rawVal);
     const imgContent = pet.image_url
       ? `<img src="${esc(pet.image_url)}" alt="${esc(pet.name)}" onerror="this.parentElement.innerHTML='🐾'"/>`
       : '🐾';
@@ -539,7 +521,7 @@ function renderPetGrid() {
 
     const card = document.createElement('div');
     card.className = 'pet-card' + (oc ? ' is-oc' : '') + (faved ? ' is-fav' : '');
-    card.onclick = () => openPetModal(pet);
+    card.onclick   = () => openPetModal(pet);
     card.innerHTML =
       `<div class="pet-card-img">${imgContent}</div>` +
       (showCat ? `<div class="pet-cat-tag">${esc(pet.category || 'standard')}</div>` : '') +
@@ -553,17 +535,18 @@ function renderPetGrid() {
         `</div>` +
         `<div class="pet-card-meta-row">` +
           (showPower  && pet.pet_power ? `<div class="pet-card-power">⚡ ${esc(String(pet.pet_power))}</div>` : '') +
-          (showDemand && demandCfg     ?
-            `<div class="pet-card-demand" style="color:${demandCfg.color};background:${demandCfg.bg};border-color:${demandCfg.border};">` +
-            `${demandCfg.icon} ${esc(pet.demand)}</div>` : '') +
+          (showDemand && demandCfg
+            ? `<div class="pet-card-demand" style="color:${demandCfg.color};background:${demandCfg.bg};border-color:${demandCfg.border};">` +
+              `${demandCfg.icon} ${esc(pet.demand)}</div>`
+            : '') +
         `</div>` +
         (showEdited && pet.updated_at ? `<div class="pet-last-edited">✎ ${fmtDateShort(pet.updated_at)}</div>` : '') +
-       `<div class="pet-variants">` +
-  (isPotion ? '<span class="pv-badge potion">POTION</span>' : '') +
-  (!isPotion && oc ? '<span class="pv-badge oc">O/C</span>' : '') +
-  (!isPotion && !oc && pet.has_gold    ? '<span class="pv-badge gold">GOLD</span>'    : '') +
-  (!isPotion && !oc && pet.has_rainbow ? '<span class="pv-badge rainbow">RAINBOW</span>' : '') +
-`</div>`
+        `<div class="pet-variants">` +
+          (isPotion ? '<span class="pv-badge potion">POTION</span>' : '') +
+          (!isPotion && oc             ? '<span class="pv-badge oc">O/C</span>'          : '') +
+          (!isPotion && !oc && pet.has_gold    ? '<span class="pv-badge gold">GOLD</span>'    : '') +
+          (!isPotion && !oc && pet.has_rainbow ? '<span class="pv-badge rainbow">RAINBOW</span>' : '') +
+        `</div>` +
       `</div>`;
     grid.appendChild(card);
   });
@@ -589,9 +572,9 @@ function clearSearch() {
 function openPetModal(pet) {
   window._modalPet = pet;
   const nv = pet.normal_value, gv = pet.gold_value, rv = pet.rainbow_value;
-  const nvNum = parseFloat(nv)||0, gvNum = parseFloat(gv)||0, rvNum = parseFloat(rv)||0;
-  const goldMult = nvNum > 0 && pet.has_gold    && !isOC(gv) ? (gvNum/nvNum).toFixed(1)+'x' : null;
-  const rbMult   = nvNum > 0 && pet.has_rainbow && !isOC(rv) ? (rvNum/nvNum).toFixed(1)+'x' : null;
+  const nvNum    = parseFloat(nv) || 0, gvNum = parseFloat(gv) || 0, rvNum = parseFloat(rv) || 0;
+  const goldMult = nvNum > 0 && pet.has_gold    && !isOC(gv) ? (gvNum / nvNum).toFixed(1) + 'x' : null;
+  const rbMult   = nvNum > 0 && pet.has_rainbow && !isOC(rv) ? (rvNum / nvNum).toFixed(1) + 'x' : null;
   const faved    = getFavs().has(pet.id);
   const demandHTML = pet.demand ? demandBadgeHTML(pet.demand, 'lg') : '';
   const imgHtml  = pet.image_url
@@ -600,7 +583,7 @@ function openPetModal(pet) {
 
   const statCard = (cls, icon, label, v, mult, locked) => {
     const oc = isOC(v);
-    return `<div class="stat-card ${cls}${locked?' locked':''}">` +
+    return `<div class="stat-card ${cls}${locked ? ' locked' : ''}">` +
       `<span class="stat-icon">${icon}</span>` +
       `<span class="stat-variant-name">${label}</span>` +
       (locked
@@ -612,64 +595,58 @@ function openPetModal(pet) {
       `</div>`;
   };
 
- showModal(
-  `<button class="modal-close" onclick="closeModal()">✕</button>
-  <div class="pet-modal-img">${imgHtml}</div>
-  <div class="pet-modal-body">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.3rem;">
-      <div class="pet-modal-name">${esc(pet.name)}</div>
-      <button class="modal-fav-btn" id="modal-fav-toggle" onclick="toggleFavModal('${esc(pet.id)}')">
-        ${faved ? '⭐ Saved' : '☆ Save'}
-      </button>
-    </div>
-    <div class="pet-modal-cat">${esc(pet.category || 'Standard')}</div>
-    <div class="pet-modal-info-grid">
-      <div class="pet-modal-rate">
-        <span class="rate-label">EXISTENCE RATE</span>
-        <span class="rate-value">${esc(pet.existence_rate || 'Unknown')}</span>
+  showModal(
+    `<button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="pet-modal-img">${imgHtml}</div>
+    <div class="pet-modal-body">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.3rem;">
+        <div class="pet-modal-name">${esc(pet.name)}</div>
+        <button class="modal-fav-btn" id="modal-fav-toggle" onclick="toggleFavModal('${esc(pet.id)}')">
+          ${faved ? '⭐ Saved' : '☆ Save'}
+        </button>
       </div>
-      ${pet.demand ? `<div class="pet-modal-rate">${demandHTML}</div>` : ''}
-    </div>
-    <div class="pet-modal-info-grid">
-      ${pet.pet_power ? `<div class="pet-modal-rate"><span class="rate-label">⚡ PET POWER</span><span class="rate-value" style="color:var(--gold);">${esc(String(pet.pet_power))}</span></div>` : ''}
-      ${pet.updated_at ? `<div class="pet-modal-rate"><span class="rate-label">✎ LAST EDITED</span><span class="rate-value" style="font-size:.75rem;">${fmtDate(pet.updated_at)}</span></div>` : ''}
-    </div>
-    <div class="pet-stats-section">
-      <div class="pet-stats-label-row">
-        <span class="pet-stats-label">Variant Values</span>
-        <button class="copy-val-btn" onclick="copyToClipboard('${fmtVal(nv)}${isOC(nv) ? '' : ' tokens'}')">📋 Copy</button>
+      <div class="pet-modal-cat">${esc(pet.category || 'Standard')}</div>
+      <div class="pet-modal-info-grid">
+        <div class="pet-modal-rate">
+          <span class="rate-label">EXISTENCE RATE</span>
+          <span class="rate-value">${esc(pet.existence_rate || 'Unknown')}</span>
+        </div>
+        ${pet.demand ? `<div class="pet-modal-rate">${demandHTML}</div>` : ''}
       </div>
-      <div class="stats-grid">
-        ${statCard('s-normal',  '🔵', 'NORMAL',  nv, null,    false)}
-        ${statCard('s-gold',    '⭐', 'GOLD',    gv, goldMult, !pet.has_gold)}
-        ${statCard('s-rainbow', '🌈', 'RAINBOW', rv, rbMult,   !pet.has_rainbow)}
+      <div class="pet-modal-info-grid">
+        ${pet.pet_power ? `<div class="pet-modal-rate"><span class="rate-label">⚡ PET POWER</span><span class="rate-value" style="color:var(--gold);">${esc(String(pet.pet_power))}</span></div>` : ''}
+        ${pet.updated_at ? `<div class="pet-modal-rate"><span class="rate-label">✎ LAST EDITED</span><span class="rate-value" style="font-size:.75rem;">${fmtDate(pet.updated_at)}</span></div>` : ''}
       </div>
-    </div>
-    ${pet.notes ? `<div class="pet-modal-notes">📝 ${esc(pet.notes)}</div>` : ''}
-    <div class="modal-action-row">
-      ${isPotionPet(pet)
-        ? `<button class="potion-btn-primary" onclick="openPotionPricesModal(window._modalPet)" style="flex:1;">
-             💰 List My Price
-           </button>
-           <button class="potion-btn-secondary" onclick="openSeePricesModal(window._modalPet)" style="flex:1;">
-             👁 See All Prices
-           </button>`
-        : `<button class="modal-add-calc" onclick="askAiAboutPet(window._modalPet)">✦ Ask AI</button>
-           <button class="modal-chart-btn" onclick="toggleModalChart('${esc(pet.id)}')">📈 Price History</button>`
+      <div class="pet-stats-section">
+        <div class="pet-stats-label-row">
+          <span class="pet-stats-label">Variant Values</span>
+          <button class="copy-val-btn" onclick="copyToClipboard('${fmtVal(nv)}${isOC(nv) ? '' : ' tokens'}')">📋 Copy</button>
+        </div>
+        <div class="stats-grid">
+          ${statCard('s-normal',  '🔵', 'NORMAL',  nv, null,    false)}
+          ${statCard('s-gold',    '⭐', 'GOLD',    gv, goldMult, !pet.has_gold)}
+          ${statCard('s-rainbow', '🌈', 'RAINBOW', rv, rbMult,   !pet.has_rainbow)}
+        </div>
+      </div>
+      ${pet.notes ? `<div class="pet-modal-notes">📝 ${esc(pet.notes)}</div>` : ''}
+      <div class="modal-action-row">
+        ${isPotionPet(pet)
+          ? `<button class="potion-btn-primary" onclick="openPotionPricesModal(window._modalPet)" style="flex:1;">
+               💰 List My Price
+             </button>
+             <button class="potion-btn-secondary" onclick="openSeePricesModal(window._modalPet)" style="flex:1;">
+               👁 See All Prices
+             </button>`
+          : `<button class="modal-add-calc" onclick="askAiAboutPet(window._modalPet)">✦ Ask AI</button>
+             <button class="modal-chart-btn" onclick="toggleModalChart('${esc(pet.id)}')">📈 Price History</button>`
+        }
+      </div>
+      ${!isPotionPet(pet)
+        ? `<div id="modal-chart-section" style="display:none;margin-top:1rem;">
+             <div id="modal-chart-content"><div class="chart-loading">Loading chart...</div></div>
+           </div>`
+        : ''
       }
-    </div>
-  </div>`
-);1
-// Only show chart for non-potions
-(!isPotionPet(pet)
-  ? `<div id="modal-chart-section" style="display:none;margin-top:1rem;">
-       <div id="modal-chart-content"><div class="chart-loading">Loading chart...</div></div>
-     </div>`
-  : ''
-),
-      <div id="modal-chart-section" style="display:none;margin-top:1rem;">
-        <div id="modal-chart-content"><div class="chart-loading">Loading chart...</div></div>
-      </div>
     </div>`
   );
 }
@@ -704,7 +681,7 @@ async function toggleModalChart(petId) {
     const numericCount = history.filter(p => !isNaN(parseFloat(p.token_value))).length;
     content.innerHTML =
       `<div class="chart-header">
-        <span class="chart-title">Price History <span class="chart-point-count">${history.length} point${history.length!==1?'s':''}</span></span>
+        <span class="chart-title">Price History <span class="chart-point-count">${history.length} point${history.length !== 1 ? 's' : ''}</span></span>
         <span class="chart-range">${history.length >= 2 ? getChartRange(history) : ''}</span>
       </div>` +
       (numericCount < 2
@@ -713,8 +690,8 @@ async function toggleModalChart(petId) {
       '<div class="chart-points-list">' +
       history.map(p =>
         `<div class="chart-point-row">
-          <span class="cpr-date">${new Date(p.recorded_at).toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'})}</span>
-          <span class="cpr-val${isOC(p.token_value)?' oc-text':''}">${isOC(p.token_value)?'👑 ':''}${fmtVal(p.token_value)}${isOC(p.token_value)?'':' T'}</span>
+          <span class="cpr-date">${new Date(p.recorded_at).toLocaleDateString([], { month:'short', day:'numeric', year:'numeric' })}</span>
+          <span class="cpr-val${isOC(p.token_value) ? ' oc-text' : ''}">${isOC(p.token_value) ? '👑 ' : ''}${fmtVal(p.token_value)}${isOC(p.token_value) ? '' : ' T'}</span>
           ${p.label ? `<span class="cpr-label">${esc(p.label)}</span>` : ''}
         </div>`
       ).join('') +
@@ -725,15 +702,14 @@ async function toggleModalChart(petId) {
 }
 
 function getChartRange(history) {
-  const dates = history.map(p => new Date(p.recorded_at)).sort((a,b) => a - b);
-  const spanDays = (dates[dates.length-1] - dates[0]) / 86400000;
+  const dates    = history.map(p => new Date(p.recorded_at)).sort((a, b) => a - b);
+  const spanDays = (dates[dates.length - 1] - dates[0]) / 86400000;
   if (spanDays < 1)  return 'Past 24h';
   if (spanDays < 7)  return 'Past ' + Math.ceil(spanDays) + ' days';
-  if (spanDays < 60) return Math.ceil(spanDays/7) + ' weeks';
-  return Math.ceil(spanDays/30) + ' months';
+  if (spanDays < 60) return Math.ceil(spanDays / 7) + ' weeks';
+  return Math.ceil(spanDays / 30) + ' months';
 }
 
-// Ask AI about a pet (shortcut from pet modal)
 function askAiAboutPet(pet) {
   closeModal();
   showPage('ai');
@@ -827,9 +803,9 @@ function renderAiChatList() {
   listEl.innerHTML = '';
   aiChats.forEach(chat => {
     const item = document.createElement('div');
-    item.className = 'ai-chat-item' + (chat.id === currentChatId ? ' active' : '');
+    item.className  = 'ai-chat-item' + (chat.id === currentChatId ? ' active' : '');
     item.dataset.id = chat.id;
-    item.innerHTML =
+    item.innerHTML  =
       `<span class="ai-chat-item-title">${esc(chat.title || 'New Chat')}</span>` +
       `<span class="ai-chat-item-time">${fmtDateShort(chat.updated_at)}</span>` +
       `<button class="ai-chat-del-btn" onclick="deleteAiChat('${chat.id}',event)" title="Delete">✕</button>`;
@@ -850,7 +826,6 @@ async function newAiChat() {
     const msgs = document.getElementById('ai-messages');
     if (msgs) msgs.scrollTop = 0;
     closeMobileAiSidebar();
-    // focus input
     setTimeout(() => document.getElementById('ai-input')?.focus(), 100);
   } catch (e) { toast('⚠ Could not create chat: ' + e.message); }
 }
@@ -890,7 +865,6 @@ async function deleteAiChat(chatId, e) {
 
 async function clearAllAiChats() {
   if (!confirm('Delete all your AI chat history? This cannot be undone.')) return;
-  const userId = getAiUserId();
   let deleted = 0;
   for (const chat of [...aiChats]) {
     try { await apiFetch('DELETE', '/api/ai/chat/' + encodeURIComponent(chat.id)); deleted++; } catch {}
@@ -914,12 +888,10 @@ function closeMobileAiSidebar() {
   }
 }
 
-// ── Append message to chat ─────────────────────────────────────────
+// ── Append message ─────────────────────────────────────────────────
 function appendAiMessage(role, content, animate) {
   const msgs = document.getElementById('ai-messages');
   if (!msgs) return null;
-
-  // Remove welcome screen if present
   const welcome = msgs.querySelector('.ai-welcome');
   if (welcome) welcome.remove();
 
@@ -948,13 +920,10 @@ function appendAiMessage(role, content, animate) {
   return div;
 }
 
-// ── Typewriter for static text (after stream) ──────────────────────
 function typewriterStream(el, text) {
   el.innerHTML = '';
-  const formatted = formatAiContent(text);
-  // For formatted HTML, inject directly (stream does char-by-char on plain)
-  el.innerHTML = formatted;
-  el.style.opacity = '0';
+  el.innerHTML = formatAiContent(text);
+  el.style.opacity   = '0';
   el.style.transform = 'translateY(6px)';
   requestAnimationFrame(() => {
     el.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
@@ -963,7 +932,6 @@ function typewriterStream(el, text) {
   });
 }
 
-// ── Format AI markdown-ish content ────────────────────────────────
 function formatAiContent(text) {
   if (!text) return '';
   return text
@@ -979,8 +947,7 @@ function formatAiContent(text) {
     .replace(/\n/g,             '<br/>');
 }
 
-// ── Thinking indicator ─────────────────────────────────────────────
-let thinkingInterval = null;
+let thinkingInterval  = null;
 let thinkingPhraseIdx = 0;
 
 function showThinkingIndicator() {
@@ -992,7 +959,7 @@ function showThinkingIndicator() {
   thinkingPhraseIdx = 0;
   const div = document.createElement('div');
   div.className = 'ai-msg ai-msg-assistant ai-msg-thinking';
-  div.id = 'ai-thinking-indicator';
+  div.id        = 'ai-thinking-indicator';
   div.innerHTML =
     `<div class="ai-msg-avatar thinking-avatar">✦</div>` +
     `<div class="ai-msg-bubble thinking-bubble">` +
@@ -1008,7 +975,7 @@ function showThinkingIndicator() {
     if (el) {
       el.style.opacity = '0';
       setTimeout(() => {
-        el.textContent = THINKING_PHRASES[thinkingPhraseIdx];
+        el.textContent   = THINKING_PHRASES[thinkingPhraseIdx];
         el.style.opacity = '1';
       }, 200);
     }
@@ -1041,16 +1008,16 @@ async function sendAiMessage() {
   const sendBtn = document.getElementById('ai-send-btn');
   if (sendBtn) sendBtn.disabled = true;
 
-  let fullText  = '';
-  let msgDiv    = null;
-  let contentEl = null;
+  let fullText   = '';
+  let msgDiv     = null;
+  let contentEl  = null;
   let firstChunk = true;
 
   try {
     const res = await fetch(API + '/api/ai/chat', {
-      method: 'POST',
+      method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: currentChatId, user_id: getAiUserId(), message: text }),
+      body:    JSON.stringify({ chat_id: currentChatId, user_id: getAiUserId(), message: text }),
     });
 
     const reader  = res.body.getReader();
@@ -1075,7 +1042,6 @@ async function sendAiMessage() {
             if (firstChunk) {
               removeThinkingIndicator();
               firstChunk = false;
-              // Create assistant message bubble for streaming
               const msgs = document.getElementById('ai-messages');
               msgDiv = document.createElement('div');
               msgDiv.className = 'ai-msg ai-msg-assistant ai-msg-streaming';
@@ -1087,27 +1053,23 @@ async function sendAiMessage() {
             }
             fullText += parsed.token;
             if (contentEl) {
-              contentEl.innerHTML = formatAiContent(fullText) +
-                '<span class="ai-cursor">▋</span>';
-              document.getElementById('ai-messages').scrollTop =
-                document.getElementById('ai-messages').scrollHeight;
+              contentEl.innerHTML = formatAiContent(fullText) + '<span class="ai-cursor">▋</span>';
+              const msgs = document.getElementById('ai-messages');
+              if (msgs) msgs.scrollTop = msgs.scrollHeight;
             }
           }
         } catch {}
       }
     }
 
-    // Finalize
     removeThinkingIndicator();
     if (contentEl) {
       contentEl.innerHTML = formatAiContent(fullText);
       msgDiv?.classList.remove('ai-msg-streaming');
     } else if (firstChunk) {
-      // No tokens received at all
       appendAiMessage('assistant', 'Sorry, I could not generate a response. Please try again.', true);
     }
 
-    // Refresh chat list (title may have updated)
     loadAiChats();
 
   } catch (e) {
@@ -1201,16 +1163,17 @@ async function loadAdminLog() {
     if (!logs || !logs.length) { list.innerHTML = '<div class="log-empty">No activity yet</div>'; return; }
     list.innerHTML = '';
     logs.forEach(entry => {
-      const row = document.createElement('div'); row.className = 'log-row';
-      const dt      = new Date(entry.created_at);
+      const row  = document.createElement('div'); row.className = 'log-row';
+      const dt   = new Date(entry.created_at);
       const timeStr = dt.toLocaleDateString([], { month:'short', day:'numeric' }) + ' ' +
         dt.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
       const iconMap  = { ADD_PET:'➕', EDIT_PET:'✏️', DELETE_PET:'🗑️', ADD_HISTORY:'📊', DELETE_HISTORY:'🗑️', EDIT_PROMPT:'✦' };
       const icon     = iconMap[entry.action] || '📋';
-      const badgeCls = entry.action === 'ADD_PET' ? 'log-badge-add'
-        : entry.action === 'EDIT_PET' ? 'log-badge-edit'
+      const badgeCls = entry.action === 'ADD_PET'         ? 'log-badge-add'
+        : entry.action === 'EDIT_PET'                     ? 'log-badge-edit'
         : (entry.action === 'DELETE_PET' || entry.action === 'DELETE_HISTORY') ? 'log-badge-del'
-        : entry.action === 'ADD_HISTORY' ? 'log-badge-history' : 'log-badge-other';
+        : entry.action === 'ADD_HISTORY'                  ? 'log-badge-history'
+        : 'log-badge-other';
       row.innerHTML =
         `<span class="log-icon">${icon}</span>` +
         `<div class="log-body">` +
@@ -1266,8 +1229,8 @@ function renderAdminPets(pets) {
           (isOC(pet.normal_value) ? ' <span class="oc-mini-badge">O/C</span>' : '') +
           (demandCfg ? ` <span class="demand-mini-badge" style="color:${demandCfg.color};background:${demandCfg.bg};border-color:${demandCfg.border};">${demandCfg.icon} ${esc(pet.demand)}</span>` : '') +
         `</div>` +
-        `<div class="apr-meta">${esc(pet.existence_rate||'Unknown')} · ${esc(pet.category||'standard')}` +
-          (pet.pet_power ? ` · ⚡${esc(String(pet.pet_power))}` : '') +
+        `<div class="apr-meta">${esc(pet.existence_rate || 'Unknown')} · ${esc(pet.category || 'standard')}` +
+          (pet.pet_power  ? ` · ⚡${esc(String(pet.pet_power))}` : '') +
           (pet.updated_at ? ` · ✎ ${fmtDateShort(pet.updated_at)}` : '') +
         `</div>` +
       `</div>` +
@@ -1325,10 +1288,10 @@ async function refreshAdminChartArea(petId) {
     history.slice().sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at)).forEach(p => {
       html +=
         `<div class="acm-point-row">` +
-          `<span class="cpr-date">${new Date(p.recorded_at).toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'})} ${new Date(p.recorded_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>` +
-          `<span class="cpr-val${isOC(p.token_value)?' oc-text':''}">${isOC(p.token_value)?'👑 ':''}${fmtVal(p.token_value)}${isOC(p.token_value)?'':' T'}</span>` +
+          `<span class="cpr-date">${new Date(p.recorded_at).toLocaleDateString([], { month:'short', day:'numeric', year:'numeric' })} ${new Date(p.recorded_at).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' })}</span>` +
+          `<span class="cpr-val${isOC(p.token_value) ? ' oc-text' : ''}">${isOC(p.token_value) ? '👑 ' : ''}${fmtVal(p.token_value)}${isOC(p.token_value) ? '' : ' T'}</span>` +
           (p.label ? `<span class="cpr-label">${esc(p.label)}</span>` : '<span></span>') +
-          `<span class="cpr-by">by ${esc(p.created_by||'?')}</span>` +
+          `<span class="cpr-by">by ${esc(p.created_by || '?')}</span>` +
           `<button class="btn-sm danger" onclick="adminDeleteHistoryPoint(${p.id},'${esc(petId)}')">✕</button>` +
         `</div>`;
     });
@@ -1344,8 +1307,8 @@ async function adminAddHistoryPoint(petId) {
   const valEl   = document.getElementById('acm-val');
   const labelEl = document.getElementById('acm-label');
   const dateVal = dateEl?.value?.trim(), tokenVal = valEl?.value?.trim(), labelVal = labelEl?.value?.trim();
-  if (!dateVal)  { toast('⚠ Pick a date'); return; }
-  if (!tokenVal) { toast('⚠ Enter a value'); return; }
+  if (!dateVal)  { toast('⚠ Pick a date');    return; }
+  if (!tokenVal) { toast('⚠ Enter a value');  return; }
   try {
     await apiFetch('POST', '/api/admin/pets/' + encodeURIComponent(petId) + '/history',
       { token_value: tokenVal, recorded_at: new Date(dateVal).toISOString(), label: labelVal },
@@ -1399,9 +1362,10 @@ function openEditPetModal(petId) {
     </div></div>`
   );
 }
+
 function petFormHTML(pet) {
   const p = pet || {};
-  const demandOpts = ['', 'Very High', 'High', 'Medium', 'Low', 'Very Low'];
+  const demandOpts       = ['', 'Very High', 'High', 'Medium', 'Low', 'Very Low'];
   const demandSelectOpts = demandOpts.map(d =>
     `<option value="${esc(d)}"${p.demand === d ? ' selected' : ''}>${d || '— Not set —'}</option>`
   ).join('');
@@ -1409,7 +1373,7 @@ function petFormHTML(pet) {
   return `<div class="mform-grid">
     <div class="field-group"><label>Pet Name *</label><input id="pf-name" type="text" value="${esc(p.name || '')}" placeholder="e.g. Blossom Ninja"/></div>
     <div class="field-group"><label>Category</label><select id="pf-cat">
-      ${['standard', 'limited', 'exclusive', 'event'].map(c =>
+      ${['standard', 'limited', 'exclusive', 'event', 'potion'].map(c =>
         `<option value="${c}"${p.category === c ? ' selected' : ''}>${c.charAt(0).toUpperCase() + c.slice(1)}</option>`
       ).join('')}
     </select></div>
@@ -1506,7 +1470,7 @@ async function ownerLogin() {
     document.getElementById('owner-dash-view').style.display  = 'block';
     loadOwnerData();
   } catch (e) {
-    err.textContent = e.message === 'Unauthorized' ? 'Wrong password' : e.message;
+    err.textContent   = e.message === 'Unauthorized' ? 'Wrong password' : e.message;
     err.style.display = 'block';
   }
 }
@@ -1529,7 +1493,7 @@ async function loadOwnerData() {
       admins.forEach(a => {
         const row = document.createElement('div'); row.className = 'owner-list-row';
         row.innerHTML =
-          `<span class="olr-name">${esc(a.display_name||a.username)}</span>` +
+          `<span class="olr-name">${esc(a.display_name || a.username)}</span>` +
           `<span class="olr-role">${esc(a.role)}</span>` +
           `<span style="color:var(--text-muted);font-family:'Share Tech Mono',monospace;font-size:.7rem;flex:1;">${esc(a.username)}</span>` +
           `<button class="btn-sm danger" onclick="ownerDeleteAdmin('${esc(a.username)}')">Remove</button>`;
@@ -1549,7 +1513,7 @@ async function loadOwnerData() {
         row.innerHTML =
           `<span class="olr-name">${esc(c.name)}</span>` +
           (c.role ? `<span class="olr-role">${esc(c.role)}</span>` : '') +
-          `<span style="color:var(--text-muted);font-size:.8rem;flex:1;">${esc(c.discord||'')}</span>` +
+          `<span style="color:var(--text-muted);font-size:.8rem;flex:1;">${esc(c.discord || '')}</span>` +
           `<button class="btn-sm danger" onclick="ownerDeleteCredit(${c.id})">Remove</button>`;
         list.appendChild(row);
       });
@@ -1563,9 +1527,9 @@ async function loadOwnerData() {
     pets.forEach(p => {
       const row = document.createElement('div'); row.className = 'owner-list-row';
       row.innerHTML =
-        `<span class="olr-name">${esc(p.name)}${isOC(p.normal_value)?' <span class="oc-mini-badge">O/C</span>':''}</span>` +
-        `<span class="olr-role">${esc(p.category||'standard')}</span>` +
-        `<span style="font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--accent);flex:1;">${fmtVal(p.normal_value)}${isOC(p.normal_value)?'':' tokens'}</span>` +
+        `<span class="olr-name">${esc(p.name)}${isOC(p.normal_value) ? ' <span class="oc-mini-badge">O/C</span>' : ''}</span>` +
+        `<span class="olr-role">${esc(p.category || 'standard')}</span>` +
+        `<span style="font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--accent);flex:1;">${fmtVal(p.normal_value)}${isOC(p.normal_value) ? '' : ' tokens'}</span>` +
         `<button class="btn-sm danger" onclick="ownerDeletePet('${esc(p.id)}','${esc(p.name)}')">Delete</button>`;
       list.appendChild(row);
     });
@@ -1579,7 +1543,7 @@ async function ownerAddAdmin() {
   try {
     await apiFetch('POST', '/api/owner/admins', { username, password, role, display_name }, { 'x-owner-password': ownerPw });
     toast('✔ Admin added: ' + username);
-    ['ow-adm-user','ow-adm-display','ow-adm-pass'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    ['ow-adm-user', 'ow-adm-display', 'ow-adm-pass'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     loadOwnerData();
   } catch (e) { toast('⚠ ' + e.message); }
 }
@@ -1591,13 +1555,13 @@ async function ownerDeleteAdmin(username) {
   } catch (e) { toast('⚠ ' + e.message); }
 }
 async function ownerAddCredit() {
-  const name = val('ow-cr-name'), role = val('ow-cr-role'), discord = val('ow-cr-discord');
+  const name      = val('ow-cr-name'), role = val('ow-cr-role'), discord = val('ow-cr-discord');
   const order_num = parseInt(document.getElementById('ow-cr-order')?.value) || 0;
   if (!name) { toast('⚠ Name required'); return; }
   try {
     await apiFetch('POST', '/api/owner/credits', { name, role, discord, order_num }, { 'x-owner-password': ownerPw });
     toast('✔ Credit added');
-    ['ow-cr-name','ow-cr-role','ow-cr-discord','ow-cr-order'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    ['ow-cr-name', 'ow-cr-role', 'ow-cr-discord', 'ow-cr-order'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     loadOwnerData();
   } catch (e) { toast('⚠ ' + e.message); }
 }
@@ -1643,11 +1607,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (settings.defaultVariant && settings.defaultVariant !== 'all')
     setVariantFilter(settings.defaultVariant);
 
-  // Enter key shortcuts
   document.getElementById('adm-pass')?.addEventListener('keydown', e => { if (e.key === 'Enter') adminLogin(); });
   document.getElementById('own-pass')?.addEventListener('keydown', e => { if (e.key === 'Enter') ownerLogin(); });
-
-  // AI input enter
   document.getElementById('ai-input')?.addEventListener('keydown', aiInputKey);
 
   checkStatus();
@@ -1655,11 +1616,9 @@ document.addEventListener('DOMContentLoaded', () => {
   getAiUserId();
 });
 
-
-// ══════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════
 //  POTION PRICES
-// ══════════════════════════════════════════
-
+// ══════════════════════════════════════════════════════════════════
 function isPotionPet(pet) {
   return pet && pet.category === 'potion';
 }
@@ -1679,80 +1638,66 @@ function parsePriceDisplay(price) {
 }
 
 async function openPotionPricesModal(pet) {
+  window._modalPet = pet;
   showModal(
     `<button class="modal-close" onclick="closeModal()">✕</button>
     <div class="potion-modal">
       <div class="potion-modal-header">
-        ${pet.image_url ? `<img src="${esc(pet.image_url)}" class="potion-modal-img" onerror="this.style.display='none'"/>` : '<span style="font-size:3rem;">🧪</span>'}
+        ${pet.image_url
+          ? `<img src="${esc(pet.image_url)}" class="potion-modal-img" onerror="this.style.display='none'"/>`
+          : '<span style="font-size:3rem;">🧪</span>'
+        }
         <div>
           <div class="potion-modal-name">${esc(pet.name)}</div>
           <div class="potion-modal-cat">Potion</div>
           ${pet.existence_rate ? `<div class="potion-modal-rate">${esc(pet.existence_rate)}</div>` : ''}
         </div>
       </div>
-
       <div class="potion-modal-value-row">
         <div class="potion-modal-value-label">BASE VALUE</div>
         <div class="potion-modal-value">${fmtVal(pet.normal_value)} <span class="val-unit">tokens</span></div>
       </div>
-
       ${pet.notes ? `<div class="pet-modal-notes">📝 ${esc(pet.notes)}</div>` : ''}
-
       <div class="potion-btn-row">
-        <button class="potion-btn-primary" onclick="openListPriceModal(window._modalPet)">
-          💰 List My Price
-        </button>
-        <button class="potion-btn-secondary" onclick="openSeePricesModal(window._modalPet)">
-          👁 See All Prices
-        </button>
+        <button class="potion-btn-primary"   onclick="openListPriceModal(window._modalPet)">💰 List My Price</button>
+        <button class="potion-btn-secondary" onclick="openSeePricesModal(window._modalPet)">👁 See All Prices</button>
       </div>
     </div>`
   );
-  window._modalPet = pet;
 }
 
 async function openListPriceModal(pet) {
+  window._modalPet = pet;
   showModal(
     `<button class="modal-close" onclick="closeModal()">✕</button>
     <div class="potion-modal">
       <div class="potion-form-title">💰 List Your Price</div>
       <div class="potion-form-sub">for <strong style="color:var(--accent);">${esc(pet.name)}</strong></div>
-
       <div class="field-group" style="margin-top:1.2rem;">
         <label>DISCORD USERNAME</label>
         <input id="pp-discord" type="text" placeholder="YourUsername (@ added automatically)"/>
         <div class="field-hint">Your Discord tag — used to identify your listing</div>
       </div>
-
       <div class="field-group">
         <label>YOUR PRICE</label>
         <input id="pp-price" type="text" placeholder="e.g. 5000, 1.5K, 2M"/>
         <div class="field-hint">How much you are selling/buying this potion for in tokens</div>
       </div>
-
       <div id="pp-err" class="form-error" style="display:none;"></div>
       <div id="pp-success" style="display:none;background:rgba(74,222,122,.1);border:1.5px solid rgba(74,222,122,.3);
            border-radius:8px;padding:.65rem .9rem;color:var(--success);font-size:.9rem;margin-top:.5rem;"></div>
-
       <div class="potion-btn-row" style="margin-top:1rem;">
         <button class="potion-btn-secondary" onclick="openPotionPricesModal(window._modalPet)">← Back</button>
-        <button class="potion-btn-primary" id="pp-submit-btn" onclick="submitPotionPrice(window._modalPet)">
-          ✔ Submit Price
-        </button>
+        <button class="potion-btn-primary" id="pp-submit-btn" onclick="submitPotionPrice(window._modalPet)">✔ Submit Price</button>
       </div>
-
       <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border2);">
         <div style="font-size:.78rem;color:var(--text-muted);margin-bottom:.5rem;">
           Want to remove your listing? Enter your username and click below.
         </div>
-        <button class="potion-btn-danger" onclick="deletePotionPrice(window._modalPet)">
-          🗑 Remove My Listing
-        </button>
+        <button class="potion-btn-danger" onclick="deletePotionPrice(window._modalPet)">🗑 Remove My Listing</button>
       </div>
     </div>`
   );
-  window._modalPet = pet;
-  // Enter key
   document.getElementById('pp-price')?.addEventListener('keydown', e => {
     if (e.key === 'Enter') submitPotionPrice(pet);
   });
@@ -1819,6 +1764,7 @@ async function deletePotionPrice(pet) {
 }
 
 async function openSeePricesModal(pet) {
+  window._modalPet = pet;
   showModal(
     `<button class="modal-close" onclick="closeModal()">✕</button>
     <div class="potion-modal">
@@ -1833,10 +1779,9 @@ async function openSeePricesModal(pet) {
       </div>
     </div>`
   );
-  window._modalPet = pet;
 
   try {
-    const prices = await apiFetch('GET', `/api/potions/${encodeURIComponent(pet.id)}/prices`);
+    const prices  = await apiFetch('GET', `/api/potions/${encodeURIComponent(pet.id)}/prices`);
     const content = document.getElementById('see-prices-content');
     if (!content) return;
 
@@ -1845,38 +1790,20 @@ async function openSeePricesModal(pet) {
       return;
     }
 
-    // Calculate approximate average
-    const nums = prices
-      .map(p => parsePriceToNum(p.price))
-      .filter(n => n !== null && n > 0);
+    const nums = prices.map(p => parsePriceToNum(p.price)).filter(n => n !== null && n > 0);
     const avg  = nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : null;
     const med  = nums.length ? [...nums].sort((a, b) => a - b)[Math.floor(nums.length / 2)] : null;
 
     let html = '';
-
-    // Stats row
     if (nums.length > 0) {
       html += `<div class="potion-price-stats">
-        <div class="pps-stat">
-          <div class="pps-stat-n">${fmtNum(avg)}</div>
-          <div class="pps-stat-l">AVG PRICE</div>
-        </div>
-        <div class="pps-stat">
-          <div class="pps-stat-n">${fmtNum(med)}</div>
-          <div class="pps-stat-l">MEDIAN</div>
-        </div>
-        <div class="pps-stat">
-          <div class="pps-stat-n">${prices.length}</div>
-          <div class="pps-stat-l">LISTINGS</div>
-        </div>
-        <div class="pps-stat">
-          <div class="pps-stat-n">${fmtNum(Math.min(...nums))}</div>
-          <div class="pps-stat-l">LOWEST</div>
-        </div>
+        <div class="pps-stat"><div class="pps-stat-n">${fmtNum(avg)}</div><div class="pps-stat-l">AVG PRICE</div></div>
+        <div class="pps-stat"><div class="pps-stat-n">${fmtNum(med)}</div><div class="pps-stat-l">MEDIAN</div></div>
+        <div class="pps-stat"><div class="pps-stat-n">${prices.length}</div><div class="pps-stat-l">LISTINGS</div></div>
+        <div class="pps-stat"><div class="pps-stat-n">${fmtNum(Math.min(...nums))}</div><div class="pps-stat-l">LOWEST</div></div>
       </div>`;
     }
 
-    // Price list
     html += '<div class="potion-prices-list">';
     prices.forEach(p => {
       const timeAgo = fmtDateShort(p.updated_at);
