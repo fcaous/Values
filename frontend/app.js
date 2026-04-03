@@ -1097,7 +1097,7 @@ async function sendAiMessage() {
 }
 
 function aiInputKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAiMessage(); }
+  if (e.key === 'Enter' && e.shiftKey) { e.preventDefault(); sendAiMessage(); }
 }
 function autoResizeAiInput(el) {
   el.style.height = 'auto';
