@@ -71,7 +71,7 @@ function sendWebhook(url, payload) {
       res.on('end', () => resolve({ ok: res.statusCode < 300 }));
     });
     req.on('error', () => resolve({ ok: false }));
-    req.setTimeout(8000, () => { req.destroy(); resolve({ ok: false })); });
+    req.setTimeout(8000, () => { req.destroy(); resolve({ ok: false }); });
     req.write(body); req.end();
   });
 }
