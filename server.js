@@ -17,7 +17,7 @@ const GROQ_API_KEY   = process.env.GROQ_API_KEY || 'gsk_aQqaZVzfewZvmaTwOQChWGdy
 const GROQ_MODEL     = 'llama-3.3-70b-versatile';
 
 // ── Put your webhook URL here ─────────────
-const ADMIN_WEBHOOK = process.env.ADMIN_WEBHOOK || 'https://discord.com/api/webhooks/YOUR_WEBHOOK_HERE';
+const ADMIN_WEBHOOK = process.env.ADMIN_WEBHOOK || 'https://discord.com/api/webhooks/1489602577657102517/cM3e0g5zVPPx3gJVvpVCIrRNDO71viFX0xpjfNAEamk3RBzGnecb55pM7-gXN98Go0i5';
 
 app.use(cors({ origin: '*' }));
 app.use(express.json({ limit: '10mb' }));
