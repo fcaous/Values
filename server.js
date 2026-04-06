@@ -13,7 +13,7 @@ const VERSION        = '2.0.0';
 const OWNER_PASSWORD = process.env.OWNER_PASSWORD || 'CSU_OWNER_2026';
 const SUPABASE_URL   = process.env.SUPABASE_URL;
 const SUPABASE_KEY   = process.env.SUPABASE_KEY;
-const GROQ_API_KEY   = process.env.GROQ_API_KEY || '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';
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const GROQ_MODEL     = 'llama-3.3-70b-versatile';
 
 // ── Put your webhook URL here ─────────────
